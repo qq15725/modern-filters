@@ -13,7 +13,7 @@
   </div>
 
   <script type="module" async>
-    import { colorOverlayFilter } from './src'
+    import { colorOverlayFilter, embossFilter } from './src'
 
     const image = await new Promise((resolve) => {
       const image = new Image()
@@ -41,26 +41,18 @@
             const data = imageData.data.slice(0)
             const color_ = Number(color.value.replace('#', '0x'))
             const color__ = [(color_ >> 16) & 255, (color_ >> 8) & 255, color_ & 255]
-            for (let length = data.length, i = 0; i < length; i += 4) {
-              const rgba = [
-                data[i],
-                data[i + 1],
-                data[i + 2],
-                data[i + 3],
-              ]
-              const newRgba = colorOverlayFilter(
-                rgba,
-                [color__[0], color__[1], color__[2], alpha.value * 255],
-              )
-              data[i] = newRgba[0]
-              data[i + 1] = newRgba[1]
-              data[i + 2] = newRgba[2]
-            }
+            colorOverlayFilter(
+              data,
+              [color__[0], color__[1], color__[2], alpha.value * 255],
+            )
+            embossFilter(data)
             context.putImageData(new ImageData(data, canvas.width, canvas.height), 0, 0)
           }
 
           watch(color, render)
           watch(alpha, render)
+
+          render()
         })
 
         return {
