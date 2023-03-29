@@ -1,23 +1,21 @@
 {
-  "name": "starter-ts",
+  "name": "modern-filters",
   "type": "module",
-  "version": "0.0.3",
+  "version": "0.0.0",
   "packageManager": "pnpm@7.26.2",
-  "description": "Starter template for TypeScript library",
+  "description": "Modern filter collection",
   "author": "wxm",
   "license": "MIT",
-  "homepage": "https://github.com/qq15725/starter-ts",
+  "homepage": "https://github.com/qq15725/modern-filters",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/qq15725/starter-ts.git"
+    "url": "git+https://github.com/qq15725/modern-filters.git"
   },
   "bugs": {
-    "url": "https://github.com/qq15725/starter-ts/issues"
+    "url": "https://github.com/qq15725/modern-filters/issues"
   },
   "keywords": [
-    "starter",
-    "template",
-    "typescript"
+    "filters"
   ],
   "sideEffects": false,
   "exports": {
