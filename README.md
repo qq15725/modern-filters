@@ -20,13 +20,13 @@
 
 ## 📦 Install
 
-```shell
+```sh
 npm i modern-filters
 ```
 
 ## 🦄 Usage
 
-```shell
+```ts
 import { colorOverlayFilter, embossFilter } from 'modern-filters'
 
 const canvas = document.querySelector('.you-canvas')
