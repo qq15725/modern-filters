@@ -1,12 +1,13 @@
 <script setup lang="ts">
   import { ref, watch } from 'vue'
-  import { colorOverlayFilter, embossFilter } from '../../src'
+  import { adjustmentFilter, colorOverlayFilter, embossFilter } from '../../src'
 
   const canvas = ref<HTMLCanvasElement>()
   const canvasContext2d = ref<CanvasRenderingContext2D>()
   const imageData = ref<ImageData>()
   const filters = {
-    colorOverlayFilter,
+    adjustmentFilter: (data: Uint8ClampedArray) => adjustmentFilter(data, { gamma: 0.5 }),
+    colorOverlayFilter: (data: Uint8ClampedArray) => colorOverlayFilter(data, { color: [255, 0, 0, 127] }),
     embossFilter,
   }
   const enabledFilters = ref<Record<string, boolean>>({})
@@ -52,7 +53,7 @@
   <div style="text-align: center;">
     <canvas ref="canvas" style="margin-bottom: 8px;" />
 
-    <div style="margin-bottom: 8px;" v-for="[name] of Object.entries(filters)" :key="name">
+    <div v-for="[name] of Object.entries(filters)" :key="name" style="margin-bottom: 8px;">
       <input :id="name" v-model="enabledFilters[name]" type="checkbox">
       <label :for="name">{{ name }}</label>
     </div>

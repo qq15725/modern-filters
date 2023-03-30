@@ -1,4 +1,12 @@
-export function embossFilter(data: Uint8ClampedArray, strength = 5) {
+export interface EmbossFilterOptions {
+  strength?: number
+}
+
+export function embossFilter(data: Uint8ClampedArray, options: EmbossFilterOptions = {}) {
+  const {
+    strength = 5,
+  } = options
+
   const rawData = data.slice(0)
   for (let length = data.length, i = 0; i < length; i += 4) {
     const color = [
