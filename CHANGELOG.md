@@ -1,3 +1,12 @@
+## [0.0.6](https://github.com/qq15725/modern-filters/compare/v0.0.5...v0.0.6) (2023-03-30)
+
+
+### Bug Fixes
+
+* zoomBlurFilter ([12b0b1e](https://github.com/qq15725/modern-filters/commit/12b0b1eb11ccc294f0df4649b9686ef8094d8d4c))
+
+
+
 ## [0.0.5](https://github.com/qq15725/modern-filters/compare/v0.0.4...v0.0.5) (2023-03-30)
 
 
