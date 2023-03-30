@@ -13,7 +13,6 @@ export interface AdjustmentFilterOptions {
 
 export function adjustmentFilter(data: Uint8ClampedArray, options: AdjustmentFilterOptions = {}) {
   const {
-    gamma = 1,
     saturation = 1,
     contrast = 1,
     brightness = 1,
@@ -22,6 +21,12 @@ export function adjustmentFilter(data: Uint8ClampedArray, options: AdjustmentFil
     blue = 1,
     alpha = 1,
   } = options
+
+  let {
+    gamma = 1,
+  } = options
+
+  gamma = Math.max(gamma, 0.0001)
 
   for (let length = data.length, i = 0; i < length; i += 4) {
     const rgba = [
