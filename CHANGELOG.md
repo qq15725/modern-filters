@@ -1,3 +1,13 @@
+## [0.0.4](https://github.com/qq15725/modern-filters/compare/v0.0.3...v0.0.4) (2023-03-30)
+
+
+### Features
+
+* colorMatrixFilter ([f66bbf3](https://github.com/qq15725/modern-filters/commit/f66bbf3be020bc41bf53c0b872e768744077d3d6))
+* colorMatrixFilter ([8b2c540](https://github.com/qq15725/modern-filters/commit/8b2c540cc5e1b31edb89a393297ed20da33a4a31))
+
+
+
 ## [0.0.3](https://github.com/qq15725/modern-filters/compare/v0.0.2...v0.0.3) (2023-03-30)
 
 
