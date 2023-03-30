@@ -1,4 +1,4 @@
-import { dot, length } from './utils'
+import { length } from './utils'
 
 export interface ZoomBlurFilterOptions {
   width?: number
@@ -11,16 +11,6 @@ export interface ZoomBlurFilterOptions {
   maxKernelSize?: number
 }
 
-const a = 12.9898
-const b = 78.233
-const c = 43758.5453
-
-function rand(co: number[], seed = 0): number {
-  const dt = dot([co[0] + seed, co[1] + seed, 0], [a, b, 0])
-  const sn = dt % 3.14159
-  return Number(String(Math.sin(sn) * c + seed).split('.')[1]) || 0
-}
-
 export function zoomBlurFilter(data: Uint8ClampedArray, options: ZoomBlurFilterOptions = {}) {
   const {
     width = 1,
@@ -28,12 +18,14 @@ export function zoomBlurFilter(data: Uint8ClampedArray, options: ZoomBlurFilterO
     center = [0, 0],
     innerRadius = 0,
     radius = -1,
-    maxKernelSize = 32,
+    maxKernelSize = 3,
   } = options
 
   let {
     strength = 0.1,
   } = options
+
+  const rawData = data.slice(0)
 
   const minGradient = innerRadius * 0.3
   const innerRadius_ = (innerRadius + minGradient * 0.5) / width
@@ -43,14 +35,14 @@ export function zoomBlurFilter(data: Uint8ClampedArray, options: ZoomBlurFilterO
 
   for (let len = data.length, i = 0; i < len; i += 4) {
     const point = i / 4
-    const x = point & width
+    const x = point % width
     const y = ~~(point / width)
 
     const dir = [
       center[0] / width - x,
       center[1] / height - y,
     ]
-    const dist = length([dir[0], dir[1] * height / width])
+    const dist = length([dir[0], dir[1] * height / width, 0])
     let delta = 0
     let gap = 0
     if (dist < innerRadius_) {
@@ -69,8 +61,7 @@ export function zoomBlurFilter(data: Uint8ClampedArray, options: ZoomBlurFilterO
       if (countLimit < 1.0) continue
     }
 
-    // randomize the lookup values to hide the fixed number of samples
-    const offset = rand([x, y])
+    const offset = Math.random()
     let total = 0
     const color = [0, 0, 0, 0]
     dir[0] *= strength
@@ -80,15 +71,15 @@ export function zoomBlurFilter(data: Uint8ClampedArray, options: ZoomBlurFilterO
       const percent = (t + offset) / maxKernelSize
       const weight = 4.0 * (percent - percent * percent)
       const p = [
-        x + dir[0] * percent,
-        y + dir[1] * percent,
+        ~~(x + dir[0] * percent),
+        ~~(y + dir[1] * percent),
       ]
-      const pi = p[1] * width + p[0]
+      const pi = (p[1] * width + p[0]) * 4
       const sample = [
-        data[pi],
-        data[pi + 1],
-        data[pi + 2],
-        data[pi + 3],
+        rawData[pi] / 255,
+        rawData[pi + 1] / 255,
+        rawData[pi + 2] / 255,
+        rawData[pi + 3] / 255,
       ]
       color[0] += sample[0] * weight
       color[1] += sample[1] * weight
@@ -99,9 +90,8 @@ export function zoomBlurFilter(data: Uint8ClampedArray, options: ZoomBlurFilterO
       if (t > countLimit) break
     }
 
-    data[i] = color[0] / total
-    data[i + 1] = color[1] / total
-    data[i + 2] = color[2] / total
-    data[i + 3] = color[3] / total
+    data[i] = color[0] / total * 255
+    data[i + 1] = color[1] / total * 255
+    data[i + 2] = color[2] / total * 255
   }
 }
