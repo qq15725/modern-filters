@@ -18,7 +18,7 @@
     colorOverlayFilter: (data: Uint8ClampedArray) => colorOverlayFilter(data, { color: [1, 0, 0, 0.5] }),
     embossFilter,
     multiColorReplaceFilter: (data: Uint8ClampedArray) => multiColorReplaceFilter(data, { replacements: [[[0, 0, 1], [0, 0, 0]]] }),
-    zoomBlurFilter: (data: Uint8ClampedArray) => zoomBlurFilter(data, { width: 888, height: 888 }),
+    zoomBlurFilter: (data: Uint8ClampedArray) => zoomBlurFilter(data, { width: canvas.value?.width, height: canvas.value?.height }),
   }
   const enabledFilters = ref<Record<string, boolean>>({})
 
