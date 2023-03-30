@@ -41,5 +41,5 @@ context.putImageData(imageData, 0, 0)
 
 ## 🚀 Filters
 
-- [colorOverlayFilter](src/colorOverlayFilter.ts)
-- [embossFilter](src/embossFilter.ts)
+- [colorOverlayFilter](src/color-overlay-filter.ts)
+- [embossFilter](src/emboss-filter.ts)
