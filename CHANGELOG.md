@@ -1,3 +1,13 @@
+## [0.0.5](https://github.com/qq15725/modern-filters/compare/v0.0.4...v0.0.5) (2023-03-30)
+
+
+### Features
+
+* MultiColorReplaceFilter ([eee95ff](https://github.com/qq15725/modern-filters/commit/eee95ff2b3e60775edd6918b98dab4601e3a8fc3))
+* zoomBlurFilter ([65a7927](https://github.com/qq15725/modern-filters/commit/65a79273c0d9be0a227ca6027f50b13125a21a9c))
+
+
+
 ## [0.0.4](https://github.com/qq15725/modern-filters/compare/v0.0.3...v0.0.4) (2023-03-30)
 
 
