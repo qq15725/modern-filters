@@ -28,7 +28,7 @@ export function adjustmentFilter(data: Uint8ClampedArray, options: AdjustmentFil
 
   gamma = Math.max(gamma, 0.0001)
 
-  for (let length = data.length, i = 0; i < length; i += 4) {
+  for (let len = data.length, i = 0; i < len; i += 4) {
     const rgba = [
       data[i] / 255,
       data[i + 1] / 255,

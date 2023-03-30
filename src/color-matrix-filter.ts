@@ -61,7 +61,7 @@ export function colorMatrixFilter(data: Uint8ClampedArray, options: ColorMatrixF
     matrix = newMatrix
   }
 
-  for (let length = data.length, i = 0; i < length; i += 4) {
+  for (let len = data.length, i = 0; i < len; i += 4) {
     const a = data[i + 3] / 255
     const a_ = a > 0 ? a : 1
     const r = data[i] / 255 / a_
