@@ -7,7 +7,7 @@
   const imageData = ref<ImageData>()
   const filters = {
     adjustmentFilter: (data: Uint8ClampedArray) => adjustmentFilter(data, { gamma: 2 }),
-    colorMatrixFilter: (data: Uint8ClampedArray) => colorMatrixFilter(data, {}),
+    colorMatrixFilter: (data: Uint8ClampedArray) => colorMatrixFilter(data, { matrices: [{ type: 'lsd' }] }),
     colorOverlayFilter: (data: Uint8ClampedArray) => colorOverlayFilter(data, { color: [255, 0, 0, 127] }),
     embossFilter,
   }
