@@ -18,3 +18,25 @@
   </a>
 </p>
 
+## 📦 Install
+
+```shell
+npm i modern-filters
+```
+
+## 🦄 Usage
+
+```shell
+import { colorOverlayFilter, embossFilter } from 'modern-filters'
+
+const canvas = document.querySelector('.you-canvas')
+const canvasContext2d = canvas.getContext('2d')
+const imageData = canvasContext2d.getImageData(0, 0, canvas.width, canvas.height)
+
+// 👇
+colorOverlayFilter(imageData.data, [255, 0, 0, 255])
+// 👇
+embossFilter(imageData.data)
+
+context.putImageData(imageData, 0, 0)
+```
