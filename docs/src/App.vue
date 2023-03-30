@@ -6,7 +6,7 @@
   const canvasContext2d = ref<CanvasRenderingContext2D>()
   const imageData = ref<ImageData>()
   const filters = {
-    adjustmentFilter: (data: Uint8ClampedArray) => adjustmentFilter(data, { gamma: 0.5 }),
+    adjustmentFilter: (data: Uint8ClampedArray) => adjustmentFilter(data, { gamma: 2, red: 4 }),
     colorOverlayFilter: (data: Uint8ClampedArray) => colorOverlayFilter(data, { color: [255, 0, 0, 127] }),
     embossFilter,
   }

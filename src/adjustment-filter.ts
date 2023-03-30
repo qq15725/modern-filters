@@ -28,20 +28,17 @@ export function adjustmentFilter(data: Uint8ClampedArray, options: AdjustmentFil
       const alphaRage = data[i + 3] / 255
       const exponent = 1 / gamma
       const rgb = [
-        Math.pow(data[i] / alphaRage, exponent),
-        Math.pow(data[i + 1] / alphaRage, exponent),
-        Math.pow(data[i + 2] / alphaRage, exponent),
+        Math.pow(data[i] / 255 / alphaRage, exponent),
+        Math.pow(data[i + 1] / 255 / alphaRage, exponent),
+        Math.pow(data[i + 2] / 255 / alphaRage, exponent),
       ]
       const dot1 = dot([0.2125, 0.7154, 0.0721], rgb)
-      rgb[0] = mix(dot1, rgb[0], saturation)
-      rgb[1] = mix(dot1, rgb[1], saturation)
-      rgb[2] = mix(dot1, rgb[2], saturation)
-      rgb[0] = mix(0.5, rgb[0], contrast)
-      rgb[1] = mix(0.5, rgb[1], contrast)
-      rgb[2] = mix(0.5, rgb[2], contrast)
-      data[i] = rgb[0] * red * brightness * alphaRage
-      data[i + 1] = rgb[1] * green * brightness * alphaRage
-      data[i + 2] = rgb[2] * blue * brightness * alphaRage
+      rgb[0] = mix(0.5, mix(dot1, rgb[0], saturation), contrast)
+      rgb[1] = mix(0.5, mix(dot1, rgb[1], saturation), contrast)
+      rgb[2] = mix(0.5, mix(dot1, rgb[2], saturation), contrast)
+      data[i] = rgb[0] * red * 255 * brightness * alphaRage
+      data[i + 1] = rgb[1] * green * 255 * brightness * alphaRage
+      data[i + 2] = rgb[2] * blue * 255 * brightness * alphaRage
     }
     data[i] *= alpha
     data[i + 1] *= alpha
