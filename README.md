@@ -44,3 +44,6 @@ context.putImageData(imageData, 0, 0)
 - [adjustmentFilter](src/adjustment-filter.ts)
 - [colorOverlayFilter](src/color-overlay-filter.ts)
 - [embossFilter](src/emboss-filter.ts)
+- [ ] GodrayFilter
+- [ ] ZoomBlurFilter
+- [ ] MultiColorReplaceFilter
