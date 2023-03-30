@@ -41,6 +41,8 @@ context.putImageData(imageData, 0, 0)
 
 ## 🚀 Filters
 
+> filter(data: Uint8ClampedArray, options?: FilterOptions)
+
 - [adjustmentFilter](src/adjustment-filter.ts)
 - [ColorMatrixFilter](src/color-matrix-filter.ts)
 - [colorOverlayFilter](src/color-overlay-filter.ts)
