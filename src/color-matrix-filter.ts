@@ -62,20 +62,27 @@ export function colorMatrixFilter(data: Uint8ClampedArray, options: ColorMatrixF
   }
 
   for (let len = data.length, i = 0; i < len; i += 4) {
-    const a = data[i + 3] / 255
-    const a_ = a > 0 ? a : 1
-    const r = data[i] / 255 / a_
-    const g = data[i + 1] / 255 / a_
-    const b = data[i + 2] / 255 / a_
-    const result = [
-      (matrix[0] * r) + (matrix[1] * g) + (matrix[2] * b) + (matrix[3] * a) + matrix[4],
-      (matrix[5] * r) + (matrix[6] * g) + (matrix[7] * b) + (matrix[8] * a) + matrix[9],
-      (matrix[10] * r) + (matrix[11] * g) + (matrix[12] * b) + (matrix[13] * a) + matrix[14],
-      (matrix[15] * r) + (matrix[16] * g) + (matrix[17] * b) + (matrix[18] * a) + matrix[19],
+    const rgba = [
+      data[i] / 255,
+      data[i + 1] / 255,
+      data[i + 2] / 255,
+      data[i + 3] / 255,
     ]
-    data[i] = mix(r, result[0], alpha) * result[3] * 255
-    data[i + 1] = mix(g, result[1], alpha) * result[3] * 255
-    data[i + 2] = mix(b, result[2], alpha) * result[3] * 255
+    if (rgba[3] > 0) {
+      rgba[0] /= rgba[3]
+      rgba[1] /= rgba[3]
+      rgba[2] /= rgba[3]
+    }
+    const result = [
+      (matrix[0] * rgba[0]) + (matrix[1] * rgba[1]) + (matrix[2] * rgba[2]) + (matrix[3] * rgba[3]) + matrix[4],
+      (matrix[5] * rgba[0]) + (matrix[6] * rgba[1]) + (matrix[7] * rgba[2]) + (matrix[8] * rgba[3]) + matrix[9],
+      (matrix[10] * rgba[0]) + (matrix[11] * rgba[1]) + (matrix[12] * rgba[2]) + (matrix[13] * rgba[3]) + matrix[14],
+      (matrix[15] * rgba[0]) + (matrix[16] * rgba[1]) + (matrix[17] * rgba[2]) + (matrix[18] * rgba[3]) + matrix[19],
+    ]
+    const rate = result[3] * 255
+    data[i] = mix(rgba[0], result[0], alpha) * rate
+    data[i + 1] = mix(rgba[1], result[1], alpha) * rate
+    data[i + 2] = mix(rgba[2], result[2], alpha) * rate
   }
 }
 

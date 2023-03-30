@@ -29,30 +29,32 @@ export function adjustmentFilter(data: Uint8ClampedArray, options: AdjustmentFil
   gamma = Math.max(gamma, 0.0001)
 
   for (let len = data.length, i = 0; i < len; i += 4) {
-    const rgba = [
-      data[i] / 255,
-      data[i + 1] / 255,
-      data[i + 2] / 255,
-      data[i + 3] / 255,
+    let currentAlpha = data[i + 3]
+    if (alpha === 1 && currentAlpha === 0) continue
+    const rgb = [
+      data[i],
+      data[i + 1],
+      data[i + 2],
     ]
-    if (rgba[3] > 0) {
-      const alphaRage = data[i + 3] / 255
+    if (currentAlpha > 0) {
+      rgb[0] /= 255
+      rgb[1] /= 255
+      rgb[2] /= 255
+      currentAlpha /= 255
       const exponent = 1 / gamma
       const result = [
-        Math.pow(rgba[0] / alphaRage, exponent),
-        Math.pow(rgba[1] / alphaRage, exponent),
-        Math.pow(rgba[2] / alphaRage, exponent),
+        Math.pow(rgb[0] / currentAlpha, exponent),
+        Math.pow(rgb[1] / currentAlpha, exponent),
+        Math.pow(rgb[2] / currentAlpha, exponent),
       ]
       const dot1 = dot([0.2125, 0.7154, 0.0721], result)
-      result[0] = mix(0.5, mix(dot1, result[0], saturation), contrast)
-      result[1] = mix(0.5, mix(dot1, result[1], saturation), contrast)
-      result[2] = mix(0.5, mix(dot1, result[2], saturation), contrast)
-      rgba[0] = result[0] * red * brightness * alphaRage
-      rgba[1] = result[1] * green * brightness * alphaRage
-      rgba[2] = result[2] * blue * brightness * alphaRage
+      const rate = brightness * currentAlpha * 255
+      rgb[0] = mix(0.5, mix(dot1, result[0], saturation), contrast) * red * rate
+      rgb[1] = mix(0.5, mix(dot1, result[1], saturation), contrast) * green * rate
+      rgb[2] = mix(0.5, mix(dot1, result[2], saturation), contrast) * blue * rate
     }
-    data[i] = rgba[0] * alpha * 255
-    data[i + 1] = rgba[1] * alpha * 255
-    data[i + 2] = rgba[2] * alpha * 255
+    data[i] = rgb[0] * alpha
+    data[i + 1] = rgb[1] * alpha
+    data[i + 2] = rgb[2] * alpha
   }
 }

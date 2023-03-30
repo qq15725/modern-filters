@@ -34,7 +34,7 @@ const canvasContext2d = canvas.getContext('2d')
 const imageData = canvasContext2d.getImageData(0, 0, canvas.width, canvas.height)
 
 // 👇
-colorOverlayFilter(imageData.data, { color: [255, 0, 0, 255] })
+colorOverlayFilter(imageData.data, { color: [1, 0, 0, 0.5] })
 
 context.putImageData(imageData, 0, 0)
 ```
@@ -51,3 +51,7 @@ context.putImageData(imageData, 0, 0)
 - [ZoomBlurFilter](src/zoom-blur-filter.ts)
 - [ ] GodrayFilter
 - [ ] BlurFilter
+
+## Reference
+
+- [pixijs/filters](https://github.com/pixijs/filters)
