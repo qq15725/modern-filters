@@ -1,12 +1,13 @@
 <script setup lang="ts">
   import { ref, watch } from 'vue'
-  import { adjustmentFilter, colorOverlayFilter, embossFilter } from '../../src'
+  import { adjustmentFilter, colorMatrixFilter, colorOverlayFilter, embossFilter } from '../../src'
 
   const canvas = ref<HTMLCanvasElement>()
   const canvasContext2d = ref<CanvasRenderingContext2D>()
   const imageData = ref<ImageData>()
   const filters = {
-    adjustmentFilter: (data: Uint8ClampedArray) => adjustmentFilter(data, { gamma: 2, red: 4 }),
+    adjustmentFilter: (data: Uint8ClampedArray) => adjustmentFilter(data, { gamma: 2 }),
+    colorMatrixFilter: (data: Uint8ClampedArray) => colorMatrixFilter(data, {}),
     colorOverlayFilter: (data: Uint8ClampedArray) => colorOverlayFilter(data, { color: [255, 0, 0, 127] }),
     embossFilter,
   }

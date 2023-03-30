@@ -7,17 +7,27 @@ export function embossFilter(data: Uint8ClampedArray, options: EmbossFilterOptio
     strength = 5,
   } = options
 
-  const rawData = data.slice(0)
+  let prevRgab = [0, 0, 0, 0]
   for (let length = data.length, i = 0; i < length; i += 4) {
-    const color = [
-      127 - (rawData[i - 4] ?? 0) * strength + (rawData[i + 4] ?? 0) * strength,
-      127 - (rawData[i - 3] ?? 0) * strength + (rawData[i + 5] ?? 0) * strength,
-      127 - (rawData[i - 2] ?? 0) * strength + (rawData[i + 6] ?? 0) * strength,
+    const rgba = [
+      data[i] / 255,
+      data[i + 1] / 255,
+      data[i + 2] / 255,
+      data[i + 3] / 255,
     ]
-    const rgb = (color[0] + color[1] + color[2]) / 3
-    const alpha = rawData[i + 3] / 255
-    data[i] = rgb * alpha
-    data[i + 1] = rgb * alpha
-    data[i + 2] = rgb * alpha
+    const nextRgba = [
+      (data[i + 4] ?? 0) / 255,
+      (data[i + 5] ?? 0) / 255,
+      (data[i + 6] ?? 0) / 255,
+    ]
+    const result = (
+      (0.5 - prevRgab[0] * strength + nextRgba[0] * strength)
+      + (0.5 - prevRgab[1] * strength + nextRgba[1] * strength)
+      + 0.5 - prevRgab[2] * strength + nextRgba[2] * strength
+    ) / 3
+    data[i] = result * rgba[3] * 255
+    data[i + 1] = result * rgba[3] * 255
+    data[i + 2] = result * rgba[3] * 255
+    prevRgab = rgba
   }
 }
