@@ -1,3 +1,12 @@
+## [0.1.1](https://github.com/qq15725/modern-filters/compare/v0.1.0...v0.1.1) (2023-03-31)
+
+
+### Bug Fixes
+
+* godrayFilter radians ([7f04ec5](https://github.com/qq15725/modern-filters/commit/7f04ec5300028c6bf253017bee569acc25e21b84))
+
+
+
 # [0.1.0](https://github.com/qq15725/modern-filters/compare/v0.0.8...v0.1.0) (2023-03-31)
 
 
