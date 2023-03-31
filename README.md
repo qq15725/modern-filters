@@ -44,13 +44,13 @@ context.putImageData(imageData, 0, 0)
 > filter(data: ImageData, options?: FilterOptions)
 
 - [adjustmentFilter](src/adjustment-filter.ts)
+- [blurFilter](src/blur-filter.ts)
 - [ColorMatrixFilter](src/color-matrix-filter.ts)
 - [colorOverlayFilter](src/color-overlay-filter.ts)
 - [embossFilter](src/emboss-filter.ts)
-- [MultiColorReplaceFilter](src/multi-color-replace-filter.ts)
-- [ZoomBlurFilter](src/zoom-blur-filter.ts)
-- [ ] GodrayFilter
-- [ ] BlurFilter
+- [multiColorReplaceFilter](src/multi-color-replace-filter.ts)
+- [zoomBlurFilter](src/zoom-blur-filter.ts)
+- [ ] godrayFilter
 
 ## Reference
 
