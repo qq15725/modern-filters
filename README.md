@@ -41,7 +41,7 @@ context.putImageData(imageData, 0, 0)
 
 ## 🚀 Filters
 
-> filter(data: ImageData, options?: FilterOptions)
+> filter(imageData: ImageData, options?: FilterOptions)
 
 - [adjustmentFilter](src/adjustment-filter.ts)
 - [blurFilter](src/blur-filter.ts)
