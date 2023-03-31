@@ -1,3 +1,17 @@
+## [0.0.8](https://github.com/qq15725/modern-filters/compare/v0.0.7...v0.0.8) (2023-03-31)
+
+
+### Bug Fixes
+
+* embossFilter ([e16c4de](https://github.com/qq15725/modern-filters/commit/e16c4deccb6906d4d5290ffe90fea66d52d9c476))
+
+
+### Features
+
+* blurFilter ([dc17440](https://github.com/qq15725/modern-filters/commit/dc17440dc8f98fc4e18dc1906bb69de908840d93))
+
+
+
 ## [0.0.7](https://github.com/qq15725/modern-filters/compare/v0.0.6...v0.0.7) (2023-03-30)
 
 
