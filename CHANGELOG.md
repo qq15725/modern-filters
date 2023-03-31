@@ -1,3 +1,13 @@
+# [0.1.0](https://github.com/qq15725/modern-filters/compare/v0.0.8...v0.1.0) (2023-03-31)
+
+
+### Bug Fixes
+
+* blurFilter ([ccffef7](https://github.com/qq15725/modern-filters/commit/ccffef7015211ec79268a252cf7fb518f7cc4538))
+* multiColorReplaceFilter ([a5d7b64](https://github.com/qq15725/modern-filters/commit/a5d7b642bf0582c008664b43f35e4ed25ad76b73))
+
+
+
 ## [0.0.8](https://github.com/qq15725/modern-filters/compare/v0.0.7...v0.0.8) (2023-03-31)
 
 
