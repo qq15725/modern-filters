@@ -21,7 +21,7 @@
     colorOverlayFilter: (data: ImageData) => colorOverlayFilter(data, { color: [1, 0, 0, 0.5] }),
     embossFilter,
     godrayFilter: (data: ImageData) => godrayFilter(data),
-    multiColorReplaceFilter: (data: ImageData) => multiColorReplaceFilter(data, { replacements: [[[0, 0, 1], [0, 0, 0]]] }),
+    multiColorReplaceFilter: (data: ImageData) => multiColorReplaceFilter(data, { replacements: [[[0, 0, 1], [1, 0, 0]]], epsilon: 0.2 }),
     zoomBlurFilter: (data: ImageData) => zoomBlurFilter(data),
   }
   const enabledFilters = ref<Record<string, boolean>>({})

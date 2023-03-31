@@ -27,14 +27,14 @@ npm i modern-filters
 ## 🦄 Usage
 
 ```ts
-import { colorOverlayFilter } from 'modern-filters'
+import { embossFilter } from 'modern-filters'
 
 const canvas = document.querySelector('.you-canvas')
 const canvasContext2d = canvas.getContext('2d')
 const imageData = canvasContext2d.getImageData(0, 0, canvas.width, canvas.height)
 
 // 👇
-colorOverlayFilter(imageData, { color: [1, 0, 0, 0.5] })
+embossFilter(imageData, { strength: 5 })
 
 context.putImageData(imageData, 0, 0)
 ```
@@ -48,9 +48,9 @@ context.putImageData(imageData, 0, 0)
 - [ColorMatrixFilter](src/color-matrix-filter.ts)
 - [colorOverlayFilter](src/color-overlay-filter.ts)
 - [embossFilter](src/emboss-filter.ts)
+- [godrayFilter](src/godray-filter.ts)
 - [multiColorReplaceFilter](src/multi-color-replace-filter.ts)
 - [zoomBlurFilter](src/zoom-blur-filter.ts)
-- [ ] godrayFilter
 
 ## Reference
 

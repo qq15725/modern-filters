@@ -1,4 +1,4 @@
-import { abs, dot, floor, fract, mix, mod, step } from './utils'
+import { mod } from './utils'
 
 export interface GodrayFilterOptions {
   angle?: number
@@ -28,191 +28,36 @@ export function godrayFilter(imageData: ImageData, options: GodrayFilterOptions 
   const dimensions = [width, height]
   const aspect = height / width
 
-  for (let len = data.length, i = 0; i < len; i += 4) {
-    const point = i / 4
-    const xy = [(point % width) / width, ~~(point / width) / height]
+  seed(0)
 
-    let d: number
-    if (parallel) {
-      d = (light[0] * xy[0]) + (light[1] * xy[1] * aspect)
-    } else {
-      const dx = xy[0] - light[0] / dimensions[0]
-      const dy = (xy[1] - light[1] / dimensions[1]) * aspect
-      d = dy / (Math.sqrt(dx * dx + dy * dy) + 0.00001)
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const xr = x / width
+      const yr = y / height
+
+      let d: number
+      if (parallel) {
+        d = (light[0] * xr) + (light[1] * yr * aspect)
+      } else {
+        const dx = xr - light[0] / dimensions[0]
+        const dy = (yr - light[1] / dimensions[1]) * aspect
+        d = dy / (Math.sqrt(dx * dx + dy * dy) + 0.00001)
+      }
+
+      const noise = turb(
+        [d + time * 0.05, d, (62.1 + time) * 0.05],
+        [480, 320, 480],
+        lacunarity,
+        gain,
+      ) * 0.7 * (1 - yr) * alpha * 255
+
+      const p = (x + y * width) * 4
+      data[p] += noise
+      data[p + 1] += noise
+      data[p + 2] += noise
+      data[p + 3] *= alpha
     }
-
-    let noise = turb(
-      [d + time * 0.05, d, (62.1 + time) * 0.05],
-      [480, 320, 480],
-      lacunarity,
-      gain,
-    )
-    noise = noise * 0.7 * (1 - xy[1]) * alpha
-    data[i] = (data[i] / 255 + noise) * 255
-    data[i + 1] = (data[i + 1] / 255 + noise) * 255
-    data[i + 2] = (data[i + 2] / 255 + noise) * 255
-    data[i + 3] *= alpha
   }
-}
-
-function permute(x: number[]) {
-  return [
-    (((x[0] * 34) + 1) * x[0]) % 289,
-    (((x[1] * 34) + 1) * x[1]) % 289,
-    (((x[2] * 34) + 1) * x[2]) % 289,
-    (((x[3] * 34) + 1) * x[3]) % 289,
-  ]
-}
-
-const TAYLOR_INV_SQRT = 1.79284291400159 - 0.85373472095314
-function taylorInvSqrt(r: number[]) {
-  return [
-    r[0] * TAYLOR_INV_SQRT,
-    r[1] * TAYLOR_INV_SQRT,
-    r[2] * TAYLOR_INV_SQRT,
-    r[3] * TAYLOR_INV_SQRT,
-  ]
-}
-
-function fade(t: number[]) {
-  return [
-    t[0] * t[0] * t[0] * (t[0] * (t[0] * 6 - 15) + 10),
-    t[1] * t[1] * t[1] * (t[1] * (t[1] * 6 - 15) + 10),
-    t[2] * t[2] * t[2] * (t[2] * (t[2] * 6 - 15) + 10),
-  ]
-}
-
-function pnoise(P: number[], rep: number[]) {
-  let Pi0 = mod(floor(P), rep)
-  let Pi1 = mod([Pi0[0] + 1, Pi0[1] + 1, Pi0[2] + 1], rep)
-  Pi0 = mod(Pi0, [289, 289, 289])
-  Pi1 = mod(Pi1, [289, 289, 289])
-  const Pf0 = fract(P)
-  const Pf1 = [Pf0[0] - 1, Pf0[1] - 1, Pf0[2] - 1]
-  const ix = [Pi0[0], Pi1[0], Pi0[0], Pi1[0]]
-  const iy = [Pi0[1], Pi0[1], Pi1[1], Pi1[1]]
-  const iz0 = [Pi0[2], Pi0[2], Pi0[2], Pi0[2]]
-  const iz1 = [Pi1[2], Pi1[2], Pi1[2], Pi1[2]]
-  const ixy_ = permute(ix)
-  const ixy = permute([ixy_[0] + iy[0], ixy_[1] + iy[1], ixy_[2] + iy[2], ixy_[3] + iy[3]])
-  const ixy0 = permute([ixy[0] + iz0[0], ixy[1] + iz0[1], ixy[2] + iz0[2], ixy[3] + iz0[3]])
-  const ixy1 = permute([ixy[0] + iz1[0], ixy[1] + iz1[1], ixy[2] + iz1[2], ixy[3] + iz1[3]])
-  const gx0_ = (1.0 / 7.0)
-  let gx0 = [ixy0[0] * gx0_, ixy0[1] * gx0_, ixy0[2] * gx0_, ixy0[3] * gx0_]
-  const gy0_ = floor(gx0)
-  const gy0__ = (1.0 / 7.0)
-  const gy0___ = fract([gy0_[0] * gy0__, gy0_[1] * gy0__, gy0_[2] * gy0__, gy0_[3] * gy0__])
-  const gy0 = [gy0___[0] - 0.5, gy0___[1] - 0.5, gy0___[2] - 0.5, gy0___[3] - 0.5]
-  gx0 = fract(gx0)
-  const gz0_ = abs(gx0)
-  const gz0__ = abs(gy0)
-  const gz0 = [
-    0.5 - gz0_[0] - gz0__[0],
-    0.5 - gz0_[1] - gz0__[1],
-    0.5 - gz0_[2] - gz0__[2],
-    0.5 - gz0_[3] - gz0__[3],
-  ]
-  const sz0 = step(gz0, [0, 0, 0, 0])
-  const gx0t_ = step([0, 0, 0, 0], gx0)
-  gx0[0] -= sz0[0] * (gx0t_[0] - 0.5)
-  gx0[1] -= sz0[1] * (gx0t_[1] - 0.5)
-  gx0[2] -= sz0[2] * (gx0t_[2] - 0.5)
-  gx0[3] -= sz0[3] * (gx0t_[3] - 0.5)
-  const gy0t_ = step([0, 0, 0, 0], gy0)
-  gy0[0] -= sz0[0] * (gy0t_[0] - 0.5)
-  gy0[1] -= sz0[1] * (gy0t_[1] - 0.5)
-  gy0[2] -= sz0[2] * (gy0t_[2] - 0.5)
-  gy0[3] -= sz0[3] * (gy0t_[3] - 0.5)
-  const gx1r_ = (1.0 / 7.0)
-  let gx1 = [
-    ixy1[0] * gx1r_,
-    ixy1[1] * gx1r_,
-    ixy1[2] * gx1r_,
-    ixy1[3] * gx1r_,
-  ]
-  const gy1_ = floor(gx1)
-  const gy1r_ = 1.0 / 7.0
-  const gy1__ = fract([gy1_[0] * gy1r_, gy1_[1] * gy1r_, gy1_[2] * gy1r_, gy1_[3] * gy1r_])
-  const gy1 = [
-    gy1__[0] - 0.5,
-    gy1__[1] - 0.5,
-    gy1__[2] - 0.5,
-    gy1__[3] - 0.5,
-  ]
-  gx1 = fract(gx1)
-  const gz1_ = abs(gx1)
-  const gz1__ = abs(gy1)
-  const gz1 = [
-    0.5 - gz1_[0] - gz1__[0],
-    0.5 - gz1_[1] - gz1__[1],
-    0.5 - gz1_[2] - gz1__[2],
-    0.5 - gz1_[3] - gz1__[3],
-  ]
-  const sz1 = step(gz1, [0, 0, 0, 0])
-  const gxt_ = step([0, 0, 0, 0], gx1)
-  gx1[0] -= sz1[0] * (gxt_[0] - 0.5)
-  gx1[1] -= sz1[1] * (gxt_[1] - 0.5)
-  gx1[2] -= sz1[2] * (gxt_[2] - 0.5)
-  gx1[3] -= sz1[3] * (gxt_[3] - 0.5)
-  const gy1t_ = step([0, 0, 0, 0], gy1)
-  gy1[0] -= sz1[0] * (gy1t_[0] - 0.5)
-  gy1[1] -= sz1[1] * (gy1t_[1] - 0.5)
-  gy1[2] -= sz1[2] * (gy1t_[2] - 0.5)
-  gy1[3] -= sz1[3] * (gy1t_[3] - 0.5)
-  const g000 = [gx0[0], gy0[0], gz0[0]]
-  const g100 = [gx0[1], gy0[1], gz0[1]]
-  const g010 = [gx0[2], gy0[2], gz0[2]]
-  const g110 = [gx0[3], gy0[3], gz0[3]]
-  const g001 = [gx1[0], gy1[0], gz1[0]]
-  const g101 = [gx1[1], gy1[1], gz1[1]]
-  const g011 = [gx1[2], gy1[2], gz1[2]]
-  const g111 = [gx1[3], gy1[3], gz1[3]]
-  const norm0 = taylorInvSqrt([dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)])
-  g000[0] *= norm0[0]
-  g000[1] *= norm0[0]
-  g000[2] *= norm0[0]
-  g010[0] *= norm0[1]
-  g010[1] *= norm0[1]
-  g010[2] *= norm0[1]
-  g100[0] *= norm0[2]
-  g100[1] *= norm0[2]
-  g100[2] *= norm0[2]
-  g110[0] *= norm0[3]
-  g110[1] *= norm0[3]
-  g110[2] *= norm0[3]
-  const norm1 = taylorInvSqrt([dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)])
-  g001[0] *= norm1[0]
-  g001[1] *= norm1[0]
-  g001[2] *= norm1[0]
-  g011[0] *= norm1[1]
-  g011[1] *= norm1[1]
-  g011[2] *= norm1[1]
-  g101[0] *= norm1[2]
-  g101[1] *= norm1[2]
-  g101[2] *= norm1[2]
-  g111[0] *= norm1[3]
-  g111[1] *= norm1[3]
-  g111[2] *= norm1[3]
-  const n000 = dot(g000, Pf0)
-  const n100 = dot(g100, [Pf1[0], Pf0[1], Pf0[2]])
-  const n010 = dot(g010, [Pf0[0], Pf1[1], Pf0[2]])
-  const n110 = dot(g110, [Pf1[0], Pf1[1], Pf0[2]])
-  const n001 = dot(g001, [Pf0[0], Pf0[1], Pf1[2]])
-  const n101 = dot(g101, [Pf1[0], Pf0[1], Pf1[2]])
-  const n011 = dot(g011, [Pf0[0], Pf1[1], Pf1[2]])
-  const n111 = dot(g111, Pf1)
-  const fade_xyz = fade(Pf0)
-  const n_z = [
-    mix(n000, n001, fade_xyz[2]),
-    mix(n100, n101, fade_xyz[2]),
-    mix(n010, n011, fade_xyz[2]),
-    mix(n110, n111, fade_xyz[2]),
-  ]
-  const n_yz = [
-    mix(n_z[0], n_z[2], fade_xyz[1]),
-    mix(n_z[1], n_z[3], fade_xyz[1]),
-  ]
-  return 2.2 * mix(n_yz[0], n_yz[1], fade_xyz[0])
 }
 
 function turb(
@@ -224,10 +69,154 @@ function turb(
   let sum = 0
   let sc = 1
   let totalgain = 1
-  for (let i = 0; i < 6; i++) {
-    sum += totalgain * pnoise([p[0] * sc, p[1] * sc, p[2] * sc], rep)
+  for (let i = 0; i < 4; i++) {
+    sum += totalgain * simplex3(mod([p[0] * sc, p[1] * sc, p[2] * sc], rep))
     sc *= lacunarity
     totalgain *= gain
   }
   return Math.abs(sum)
+}
+
+function Grad(x: number, y: number, z: number) {
+  // @ts-expect-error this
+  this.x = x
+  // @ts-expect-error this
+  this.y = y
+  // @ts-expect-error this
+  this.z = z
+}
+
+Grad.prototype.dot3 = function (x: number, y: number, z: number) {
+  return this.x * x + this.y * y + this.z * z
+}
+
+const grad3 = [
+  // @ts-expect-error new
+  new Grad(1, 1, 0), new Grad(-1, 1, 0), new Grad(1, -1, 0), new Grad(-1, -1, 0),
+  // @ts-expect-error new
+  new Grad(1, 0, 1), new Grad(-1, 0, 1), new Grad(1, 0, -1), new Grad(-1, 0, -1),
+  // @ts-expect-error new
+  new Grad(0, 1, 1), new Grad(0, -1, 1), new Grad(0, 1, -1), new Grad(0, -1, -1),
+]
+
+const p = [
+  151, 160, 137, 91, 90, 15,
+  131, 13, 201, 95, 96, 53, 194, 233, 7, 225, 140, 36, 103, 30, 69, 142, 8, 99, 37, 240, 21, 10, 23,
+  190, 6, 148, 247, 120, 234, 75, 0, 26, 197, 62, 94, 252, 219, 203, 117, 35, 11, 32, 57, 177, 33,
+  88, 237, 149, 56, 87, 174, 20, 125, 136, 171, 168, 68, 175, 74, 165, 71, 134, 139, 48, 27, 166,
+  77, 146, 158, 231, 83, 111, 229, 122, 60, 211, 133, 230, 220, 105, 92, 41, 55, 46, 245, 40, 244,
+  102, 143, 54, 65, 25, 63, 161, 1, 216, 80, 73, 209, 76, 132, 187, 208, 89, 18, 169, 200, 196,
+  135, 130, 116, 188, 159, 86, 164, 100, 109, 198, 173, 186, 3, 64, 52, 217, 226, 250, 124, 123,
+  5, 202, 38, 147, 118, 126, 255, 82, 85, 212, 207, 206, 59, 227, 47, 16, 58, 17, 182, 189, 28, 42,
+  223, 183, 170, 213, 119, 248, 152, 2, 44, 154, 163, 70, 221, 153, 101, 155, 167, 43, 172, 9,
+  129, 22, 39, 253, 19, 98, 108, 110, 79, 113, 224, 232, 178, 185, 112, 104, 218, 246, 97, 228,
+  251, 34, 242, 193, 238, 210, 144, 12, 191, 179, 162, 241, 81, 51, 145, 235, 249, 14, 239, 107,
+  49, 192, 214, 31, 181, 199, 106, 157, 184, 84, 204, 176, 115, 121, 50, 45, 127, 4, 150, 254,
+  138, 236, 205, 93, 222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61, 156, 180,
+]
+
+const F3 = 1 / 3
+const G3 = 1 / 6
+const perm = new Array(512)
+const gradP = new Array(512)
+
+function seed(seed: number) {
+  if (seed > 0 && seed < 1) seed *= 65536
+  seed = Math.floor(seed)
+  if (seed < 256) {
+    seed |= seed << 8
+  }
+  for (let i = 0; i < 256; i++) {
+    let v: number
+    if (i & 1) {
+      v = p[i] ^ (seed & 255)
+    } else {
+      v = p[i] ^ ((seed >> 8) & 255)
+    }
+    perm[i] = perm[i + 256] = v
+    gradP[i] = gradP[i + 256] = grad3[v % 12]
+  }
+}
+
+function simplex3([xin, yin, zin]: number[]) {
+  let n0, n1, n2, n3
+
+  const s = (xin + yin + zin) * F3
+  let i = Math.floor(xin + s)
+  let j = Math.floor(yin + s)
+  let k = Math.floor(zin + s)
+
+  const t = (i + j + k) * G3
+  const x0 = xin - i + t
+  const y0 = yin - j + t
+  const z0 = zin - k + t
+
+  let i1, j1, k1
+  let i2, j2, k2
+  if (x0 >= y0) {
+    if (y0 >= z0) {
+      i1 = 1; j1 = 0; k1 = 0; i2 = 1; j2 = 1; k2 = 0
+    } else if (x0 >= z0) {
+      i1 = 1; j1 = 0; k1 = 0; i2 = 1; j2 = 0; k2 = 1
+    } else {
+      i1 = 0; j1 = 0; k1 = 1; i2 = 1; j2 = 0; k2 = 1
+    }
+  } else {
+    if (y0 < z0) {
+      i1 = 0; j1 = 0; k1 = 1; i2 = 0; j2 = 1; k2 = 1
+    } else if (x0 < z0) {
+      i1 = 0; j1 = 1; k1 = 0; i2 = 0; j2 = 1; k2 = 1
+    } else {
+      i1 = 0; j1 = 1; k1 = 0; i2 = 1; j2 = 1; k2 = 0
+    }
+  }
+  const x1 = x0 - i1 + G3
+  const y1 = y0 - j1 + G3
+  const z1 = z0 - k1 + G3
+
+  const x2 = x0 - i2 + 2 * G3
+  const y2 = y0 - j2 + 2 * G3
+  const z2 = z0 - k2 + 2 * G3
+
+  const x3 = x0 - 1 + 3 * G3
+  const y3 = y0 - 1 + 3 * G3
+  const z3 = z0 - 1 + 3 * G3
+
+  i &= 255
+  j &= 255
+  k &= 255
+  const gi0 = gradP[i + perm[j + perm[k]]]
+  const gi1 = gradP[i + i1 + perm[j + j1 + perm[k + k1]]]
+  const gi2 = gradP[i + i2 + perm[j + j2 + perm[k + k2]]]
+  const gi3 = gradP[i + 1 + perm[j + 1 + perm[k + 1]]]
+
+  let t0 = 0.6 - x0 * x0 - y0 * y0 - z0 * z0
+  if (t0 < 0) {
+    n0 = 0
+  } else {
+    t0 *= t0
+    n0 = t0 * t0 * gi0.dot3(x0, y0, z0)
+  }
+  let t1 = 0.6 - x1 * x1 - y1 * y1 - z1 * z1
+  if (t1 < 0) {
+    n1 = 0
+  } else {
+    t1 *= t1
+    n1 = t1 * t1 * gi1.dot3(x1, y1, z1)
+  }
+  let t2 = 0.6 - x2 * x2 - y2 * y2 - z2 * z2
+  if (t2 < 0) {
+    n2 = 0
+  } else {
+    t2 *= t2
+    n2 = t2 * t2 * gi2.dot3(x2, y2, z2)
+  }
+  let t3 = 0.6 - x3 * x3 - y3 * y3 - z3 * z3
+  if (t3 < 0) {
+    n3 = 0
+  } else {
+    t3 *= t3
+    n3 = t3 * t3 * gi3.dot3(x3, y3, z3)
+  }
+  return 32 * (n0 + n1 + n2 + n3)
 }
