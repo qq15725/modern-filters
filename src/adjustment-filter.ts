@@ -11,7 +11,7 @@ export interface AdjustmentFilterOptions {
   alpha?: number
 }
 
-export function adjustmentFilter(data: Uint8ClampedArray, options: AdjustmentFilterOptions = {}) {
+export function adjustmentFilter({ data }: ImageData, options: AdjustmentFilterOptions = {}) {
   const {
     saturation = 1,
     contrast = 1,

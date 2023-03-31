@@ -20,7 +20,7 @@ export interface ColorMatrixFilterOptions {
   alpha?: number
 }
 
-export function colorMatrixFilter(data: Uint8ClampedArray, options: ColorMatrixFilterOptions = {}) {
+export function colorMatrixFilter({ data }: ImageData, options: ColorMatrixFilterOptions = {}) {
   const {
     alpha = 1,
     matrices = [],

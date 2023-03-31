@@ -34,14 +34,14 @@ const canvasContext2d = canvas.getContext('2d')
 const imageData = canvasContext2d.getImageData(0, 0, canvas.width, canvas.height)
 
 // 👇
-colorOverlayFilter(imageData.data, { color: [1, 0, 0, 0.5] })
+colorOverlayFilter(imageData, { color: [1, 0, 0, 0.5] })
 
 context.putImageData(imageData, 0, 0)
 ```
 
 ## 🚀 Filters
 
-> filter(data: Uint8ClampedArray, options?: FilterOptions)
+> filter(data: ImageData, options?: FilterOptions)
 
 - [adjustmentFilter](src/adjustment-filter.ts)
 - [ColorMatrixFilter](src/color-matrix-filter.ts)

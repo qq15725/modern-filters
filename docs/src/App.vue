@@ -5,6 +5,7 @@
     colorMatrixFilter,
     colorOverlayFilter,
     embossFilter,
+    godrayFilter,
     multiColorReplaceFilter,
     zoomBlurFilter,
   } from '../../src'
@@ -13,12 +14,13 @@
   const canvasContext2d = ref<CanvasRenderingContext2D>()
   const imageData = ref<ImageData>()
   const filters = {
-    adjustmentFilter: (data: Uint8ClampedArray) => adjustmentFilter(data, { gamma: 2 }),
-    colorMatrixFilter: (data: Uint8ClampedArray) => colorMatrixFilter(data, { matrices: [{ type: 'lsd' }] }),
-    colorOverlayFilter: (data: Uint8ClampedArray) => colorOverlayFilter(data, { color: [1, 0, 0, 0.5] }),
+    adjustmentFilter: (data: ImageData) => adjustmentFilter(data, { gamma: 2 }),
+    colorMatrixFilter: (data: ImageData) => colorMatrixFilter(data, { matrices: [{ type: 'lsd' }] }),
+    colorOverlayFilter: (data: ImageData) => colorOverlayFilter(data, { color: [1, 0, 0, 0.5] }),
     embossFilter,
-    multiColorReplaceFilter: (data: Uint8ClampedArray) => multiColorReplaceFilter(data, { replacements: [[[0, 0, 1], [0, 0, 0]]] }),
-    zoomBlurFilter: (data: Uint8ClampedArray) => zoomBlurFilter(data, { width: canvas.value?.width, height: canvas.value?.height }),
+    godrayFilter: (data: ImageData) => godrayFilter(data),
+    multiColorReplaceFilter: (data: ImageData) => multiColorReplaceFilter(data, { replacements: [[[0, 0, 1], [0, 0, 0]]] }),
+    zoomBlurFilter: (data: ImageData) => zoomBlurFilter(data),
   }
   const enabledFilters = ref<Record<string, boolean>>({})
 
@@ -29,12 +31,16 @@
     for (const [enabledName, enabledValue] of Object.entries(enabledFilters.value)) {
       if (enabledValue) enabeld.push(enabledName)
     }
-    const data = imageData.value.data.slice(0)
+    const imagedata_ = new ImageData(
+      imageData.value.data.slice(0),
+      canvas.value.width,
+      canvas.value.height,
+    )
     for (const [name, filter] of Object.entries(filters)) {
       if (!enabeld.includes(name)) continue
-      filter(data)
+      filter(imagedata_)
     }
-    canvasContext2d.value.putImageData(new ImageData(data, canvas.value.width, canvas.value.height), 0, 0)
+    canvasContext2d.value.putImageData(imagedata_, 0, 0)
   }
 
   watch(canvas, async canvas => {

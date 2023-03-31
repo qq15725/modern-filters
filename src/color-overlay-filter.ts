@@ -6,7 +6,7 @@ export interface ColorOverlayFilterOptions {
   color?: RGBA
 }
 
-export function colorOverlayFilter(data: Uint8ClampedArray, options: ColorOverlayFilterOptions = {}) {
+export function colorOverlayFilter({ data }: ImageData, options: ColorOverlayFilterOptions = {}) {
   const {
     color = [1, 0, 0, 0.5],
   } = options
