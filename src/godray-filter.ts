@@ -23,7 +23,7 @@ export function godrayFilter(imageData: ImageData, options: GodrayFilterOptions 
     alpha = 1,
   } = options
 
-  const radians = angle / Math.PI
+  const radians = (angle / 180) * Math.PI
   const light = parallel ? [Math.cos(radians), Math.sin(radians)] : center
   const dimensions = [width, height]
   const aspect = height / width
@@ -49,7 +49,7 @@ export function godrayFilter(imageData: ImageData, options: GodrayFilterOptions 
         [480, 320, 480],
         lacunarity,
         gain,
-      ) * 0.7 * (1 - yr) * alpha * 255
+      ) * 0.3 * (1 - yr) * alpha * 255
 
       const p = (x + y * width) * 4
       data[p] += noise
@@ -69,7 +69,7 @@ function turb(
   let sum = 0
   let sc = 1
   let totalgain = 1
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 3; i++) {
     sum += totalgain * simplex3(mod([p[0] * sc, p[1] * sc, p[2] * sc], rep))
     sc *= lacunarity
     totalgain *= gain
