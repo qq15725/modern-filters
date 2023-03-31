@@ -11,7 +11,9 @@ export interface AdjustmentFilterOptions {
   alpha?: number
 }
 
-export function adjustmentFilter({ data }: ImageData, options: AdjustmentFilterOptions = {}) {
+export function adjustmentFilter(imageData: ImageData, options: AdjustmentFilterOptions = {}) {
+  const { data } = imageData
+
   const {
     saturation = 1,
     contrast = 1,

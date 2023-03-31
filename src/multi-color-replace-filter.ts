@@ -6,7 +6,9 @@ export interface MultiColorReplaceFilterOptions {
   epsilon?: number
 }
 
-export function multiColorReplaceFilter({ data }: ImageData, options: MultiColorReplaceFilterOptions = {}) {
+export function multiColorReplaceFilter(imageData: ImageData, options: MultiColorReplaceFilterOptions = {}) {
+  const { data } = imageData
+
   const {
     replacements = [
       [[1, 0, 0], [0, 0, 1]],

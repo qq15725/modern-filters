@@ -11,11 +11,7 @@ export interface GodrayFilterOptions {
 }
 
 export function godrayFilter(imageData: ImageData, options: GodrayFilterOptions = {}) {
-  const {
-    width,
-    height,
-    data,
-  } = imageData
+  const { width, height, data } = imageData
 
   const {
     angle = 30,
