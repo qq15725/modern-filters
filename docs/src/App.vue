@@ -2,6 +2,7 @@
   import { ref, watch } from 'vue'
   import {
     adjustmentFilter,
+    blurFilter,
     colorMatrixFilter,
     colorOverlayFilter,
     embossFilter,
@@ -15,6 +16,7 @@
   const imageData = ref<ImageData>()
   const filters = {
     adjustmentFilter: (data: ImageData) => adjustmentFilter(data, { gamma: 2 }),
+    blurFilter: (data: ImageData) => blurFilter(data),
     colorMatrixFilter: (data: ImageData) => colorMatrixFilter(data, { matrices: [{ type: 'lsd' }] }),
     colorOverlayFilter: (data: ImageData) => colorOverlayFilter(data, { color: [1, 0, 0, 0.5] }),
     embossFilter,
