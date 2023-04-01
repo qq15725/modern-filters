@@ -13,13 +13,9 @@ export function multiColorReplaceFilter(imageData: ImageData, options: MultiColo
     replacements = [
       [[1, 0, 0], [0, 0, 1]],
     ],
+    epsilon = 0.3,
   } = options
 
-  let {
-    epsilon = 0.1,
-  } = options
-
-  epsilon = epsilon * 3
   const maxColors = replacements.length
 
   for (let len = data.length, i = 0; i < len; i += 4) {

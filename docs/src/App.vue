@@ -15,13 +15,13 @@
   const canvasContext2d = ref<CanvasRenderingContext2D>()
   const imageData = ref<ImageData>()
   const filters = {
-    adjustmentFilter: (data: ImageData) => adjustmentFilter(data, { gamma: 2 }),
+    adjustmentFilter: (data: ImageData) => adjustmentFilter(data, { green: 2 }),
     blurFilter: (data: ImageData) => blurFilter(data),
     colorMatrixFilter: (data: ImageData) => colorMatrixFilter(data, { matrices: [{ type: 'lsd' }] }),
     colorOverlayFilter: (data: ImageData) => colorOverlayFilter(data, { color: [1, 0, 0, 0.5] }),
     embossFilter,
     godrayFilter: (data: ImageData) => godrayFilter(data),
-    multiColorReplaceFilter: (data: ImageData) => multiColorReplaceFilter(data, { replacements: [[[0, 0, 1], [1, 0, 0]]], epsilon: 0.2 }),
+    multiColorReplaceFilter: (data: ImageData) => multiColorReplaceFilter(data, { replacements: [[[0, 0, 1], [1, 0, 0]]], epsilon: 1 }),
     zoomBlurFilter: (data: ImageData) => zoomBlurFilter(data),
   }
   const enabledFilters = ref<Record<string, boolean>>({})
