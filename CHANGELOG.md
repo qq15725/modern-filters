@@ -1,3 +1,12 @@
+## [0.1.2](https://github.com/qq15725/modern-filters/compare/v0.1.1...v0.1.2) (2023-04-01)
+
+
+### Bug Fixes
+
+* multiColorReplaceFilter epsilon ([d256c64](https://github.com/qq15725/modern-filters/commit/d256c64145e8b8d90c61bf83c91daaae5917f7fd))
+
+
+
 ## [0.1.1](https://github.com/qq15725/modern-filters/compare/v0.1.0...v0.1.1) (2023-03-31)
 
 
