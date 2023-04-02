@@ -1,78 +1,91 @@
 <script setup lang="ts">
-  import { ref, watch } from 'vue'
+  import { computed, onMounted, ref, watch } from 'vue'
   import {
     adjustmentFilter,
     blurFilter,
-    colorMatrixFilter,
-    colorOverlayFilter,
-    embossFilter,
+    createColorMatrixFilter,
+    createColorOverlayFilter,
+    createEmbossFilter,
+    createFadeFilter,
+    createMultiColorReplaceFilter,
+    createTexture,
     godrayFilter,
-    multiColorReplaceFilter,
     zoomBlurFilter,
   } from '../../src'
 
   const canvas = ref<HTMLCanvasElement>()
-  const canvasContext2d = ref<CanvasRenderingContext2D>()
-  const imageData = ref<ImageData>()
-  const filters = {
-    adjustmentFilter: (data: ImageData) => adjustmentFilter(data, { green: 2 }),
-    blurFilter: (data: ImageData) => blurFilter(data),
-    colorMatrixFilter: (data: ImageData) => colorMatrixFilter(data, { matrices: [{ type: 'lsd' }] }),
-    colorOverlayFilter: (data: ImageData) => colorOverlayFilter(data, { color: [1, 0, 0, 0.5] }),
-    embossFilter,
-    godrayFilter: (data: ImageData) => godrayFilter(data),
-    multiColorReplaceFilter: (data: ImageData) => multiColorReplaceFilter(data, { replacements: [[[0, 0, 1], [1, 0, 0]]], epsilon: 1 }),
-    zoomBlurFilter: (data: ImageData) => zoomBlurFilter(data),
+  const filterCreaters = {
+    // adjustmentFilter,
+    // blurFilter,
+    createColorMatrixFilter,
+    createColorOverlayFilter,
+    createEmbossFilter,
+    createFadeFilter,
+    // godrayFilter,
+    createMultiColorReplaceFilter,
+    // zoomBlurFilter,
   }
-  const enabledFilters = ref<Record<string, boolean>>({})
-
-  function render() {
-    if (!canvas.value || !canvasContext2d.value || !imageData.value) return
-
-    const enabeld: string[] = []
-    for (const [enabledName, enabledValue] of Object.entries(enabledFilters.value)) {
-      if (enabledValue) enabeld.push(enabledName)
+  const enabledNames = ref<Record<string, boolean>>({})
+  const enabledFilterCreaters = computed(() => {
+    const result: any[] = []
+    for (const [name, value] of Object.entries(enabledNames.value)) {
+      if (value) result.push(filterCreaters[name as keyof typeof filterCreaters])
     }
-    const imagedata_ = new ImageData(
-      imageData.value.data.slice(0),
-      canvas.value.width,
-      canvas.value.height,
-    )
-    for (const [name, filter] of Object.entries(filters)) {
-      if (!enabeld.includes(name)) continue
-      filter(imagedata_)
-    }
-    canvasContext2d.value.putImageData(imagedata_, 0, 0)
-  }
-
-  watch(canvas, async canvas => {
-    if (!canvas) return
-
-    const image = await new Promise<HTMLImageElement>((resolve) => {
-      const image = new Image()
-      image.src = '/example.jpg'
-      image.onload = () => resolve(image)
-    })
-
-    canvas.width = image.width
-    canvas.height = image.height
-    canvas.style.width = '200px'
-    canvasContext2d.value = canvas.getContext('2d') ?? undefined
-    canvasContext2d.value?.drawImage(image, 0, 0)
-    imageData.value = canvasContext2d.value?.getImageData(0, 0, canvas.width, canvas.height)
-
-    render()
+    return result
   })
 
-  watch(enabledFilters, render, { deep: true })
+  onMounted(async () => {
+    const image = await new Promise<HTMLImageElement>((resolve) => {
+      const img = new Image()
+      img.src = '/example.jpg'
+      img.onload = () => resolve(img)
+    })
+
+    if (canvas.value) {
+      canvas.value.style.width = '200px'
+      canvas.value.width = image.width
+      canvas.value.height = image.height
+    }
+
+    const texture = createTexture({
+      image,
+      canvas: canvas.value,
+    })
+
+    watch(
+      enabledFilterCreaters,
+      (creaters) => {
+        texture.clearPrograms()
+        if (creaters.length) {
+          creaters.forEach(createFilter => {
+            texture.use(createFilter())
+          })
+        } else {
+          texture.use(() => texture.registerProgram())
+        }
+      },
+      { deep: true, immediate: true },
+    )
+
+    let then = 0
+    let time = 0
+    function mainLoop(now: number) {
+      texture.draw(time)
+      now *= 0.001
+      time += now - then
+      then = now
+      requestAnimationFrame(mainLoop)
+    }
+    requestAnimationFrame(mainLoop)
+  })
 </script>
 
 <template>
   <div style="text-align: center;">
     <canvas ref="canvas" style="margin-bottom: 8px;" />
 
-    <div v-for="[name] of Object.entries(filters)" :key="name" style="margin-bottom: 8px;">
-      <input :id="name" v-model="enabledFilters[name]" type="checkbox">
+    <div v-for="[name] of Object.entries(filterCreaters)" :key="name" style="margin-bottom: 8px;">
+      <input :id="name" v-model="enabledNames[name]" type="checkbox">
       <label :for="name">{{ name }}</label>
     </div>
   </div>
