@@ -39,7 +39,7 @@ export function createPixelateFilter(options: PixelateFilterOptions = {}) {
     size = 10,
   } = options
 
-  return defineFilter((texture) => {
+  return defineFilter(texture => {
     texture.registerProgram({
       fragmentShader,
       uniforms: {

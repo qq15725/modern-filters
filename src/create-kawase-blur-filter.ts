@@ -56,7 +56,7 @@ export function createKawaseBlurFilter(options: KawaseBlurFilterOptions = {}) {
     uLoop: loop,
   }
 
-  return defineFilter((texture) => {
+  return defineFilter(texture => {
     const uvX = 1 / texture.width
     const uvY = 1 / texture.height
 

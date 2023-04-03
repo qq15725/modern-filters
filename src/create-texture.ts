@@ -1,30 +1,22 @@
-import type { Texture, TextureOptions } from './types'
+import type { Texture, TextureOptions, Uniform, UniformType } from './types'
 
-interface UniformInfo {
-  type: 'float'
-  | 'vec2'
-  | 'vec3'
-  | 'vec4'
-  | 'int'
-  | 'ivec2'
-  | 'ivec3'
-  | 'ivec4'
-  | 'uint'
-  | 'uvec2'
-  | 'uvec3'
-  | 'uvec4'
-  | 'bool'
-  | 'bvec2'
-  | 'bvec3'
-  | 'bvec4'
-  | 'mat2'
-  | 'mat3'
-  | 'mat4'
-  | 'sampler2D'
-  | 'samplerCube'
-  | 'sampler2DArray'
-  isArray: boolean
+const vert = `
+attribute vec2 aPosition;
+varying vec2 vTextureCoord;
+void main() {
+    gl_Position = vec4(aPosition, 0, 1);
+    vTextureCoord = step(0.0, aPosition);
 }
+`
+
+const frag = `
+precision mediump float;
+uniform sampler2D uSampler;
+varying vec2 vTextureCoord;
+void main() {
+  gl_FragColor = texture2D(uSampler, vTextureCoord);
+}
+`
 
 export function createTexture(options: TextureOptions): Texture {
   const {
@@ -32,22 +24,8 @@ export function createTexture(options: TextureOptions): Texture {
     view: userCanvas,
     filterArea,
     vertices = [-1, 1, -1, -1, 1, -1, 1, -1, 1, 1, -1, 1],
-    defaultVertexShader = `
-attribute vec2 aPosition;
-varying vec2 vTextureCoord;
-void main() {
-    gl_Position = vec4(aPosition, 0, 1);
-    vTextureCoord = step(0.0, aPosition);
-}
-`,
-    defaultFragmentShader = `
-precision mediump float;
-uniform sampler2D uSampler;
-varying vec2 vTextureCoord;
-void main() {
-  gl_FragColor = texture2D(uSampler, vTextureCoord);
-}
-`,
+    defaultVertexShader = vert,
+    defaultFragmentShader = frag,
   } = options
 
   const { width, height } = source
@@ -102,7 +80,7 @@ void main() {
     const {
       vertexShader = defaultVertexShader,
       fragmentShader = defaultFragmentShader,
-      uniforms = {},
+      uniforms: userUniforms,
     } = options
     const program = createProgram(gl, vertexShader, fragmentShader)
 
@@ -110,14 +88,16 @@ void main() {
     gl.bindAttribLocation(program, 0, 'aPosition')
 
     // Init uniform infos
-    const uniformInfos: Record<string, UniformInfo> = {}
+    const uniforms: Record<string, Uniform> = {}
     const totalUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS)
     for (let i = 0; i < totalUniforms; i++) {
       const uniformData = gl.getActiveUniform(program, i)
       if (!uniformData) continue
-      uniformInfos[uniformData.name.replace(/\[.*?\]$/, '')] = {
+      const name = uniformData.name.replace(/\[.*?\]$/, '')
+      uniforms[name] = {
         type: getUniofrmType(gl, uniformData.type),
         isArray: !!(uniformData.name.match(/\[.*?\]$/)),
+        location: gl.getUniformLocation(program, name),
       }
     }
 
@@ -125,17 +105,16 @@ void main() {
     gl.useProgram(program)
 
     const allUniforms: Record<string, any> = {
-      ...uniforms,
+      ...userUniforms,
       ...globalUniforms,
     }
 
     for (const [name, value] of Object.entries(allUniforms)) {
-      const info = uniformInfos[name]
-      if (!info) continue
-      const location = gl.getUniformLocation(program, name)
-      switch (info.type) {
+      if (!(name in uniforms)) continue
+      const { type, isArray, location } = uniforms[name]
+      switch (type) {
         case 'float':
-          if (info.isArray) {
+          if (isArray) {
             gl.uniform1fv(location, value)
           } else {
             gl.uniform1f(location, value)
@@ -143,7 +122,7 @@ void main() {
           break
         case 'bool':
         case 'int':
-          if (info.isArray) {
+          if (isArray) {
             gl.uniform1iv(location, value)
           } else {
             gl.uniform1i(location, value)
@@ -163,9 +142,7 @@ void main() {
 
     programs.add({
       program,
-      locations: {
-        uTime: gl.getUniformLocation(program, 'uTime'),
-      },
+      uniforms,
     })
 
     return program
@@ -192,11 +169,11 @@ void main() {
     draw: (time = 0) => {
       gl.bindTexture(gl.TEXTURE_2D, rawTexture)
       let index = 0
-      programs.forEach(({ program, locations }) => {
+      programs.forEach(({ program, uniforms }) => {
         const isLast = index === programs.size - 1
         const textureBuffer = textureBuffers[index++ % 2]
         gl.useProgram(program)
-        locations.uTime && gl.uniform1f(locations.uTime, time)
+        uniforms.uTime?.location && gl.uniform1f(uniforms.uTime.location, time)
         if (isLast) {
           gl.bindFramebuffer(gl.FRAMEBUFFER, null)
         } else {
@@ -301,7 +278,7 @@ const GL_TO_GLSL_TYPES = {
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-function getUniofrmType(gl: any, type: number): UniformInfo['type'] {
+function getUniofrmType(gl: any, type: number): UniformType {
   if (!GL_TABLE) {
     const typeNames = Object.keys(GL_TO_GLSL_TYPES)
     GL_TABLE = {}

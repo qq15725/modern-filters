@@ -1,5 +1,4 @@
 import { defineFilter } from './define-filter'
-import type { RGBA } from './types'
 
 const fragmentShader = `
 precision mediump float;
@@ -15,7 +14,7 @@ void main(void) {
 `
 
 export interface ColorOverlayFilterOptions {
-  color?: RGBA
+  color?: number[]
 }
 
 export function createColorOverlayFilter(options: ColorOverlayFilterOptions = {}) {
@@ -23,8 +22,8 @@ export function createColorOverlayFilter(options: ColorOverlayFilterOptions = {}
     color = [1, 0, 0, 0.5],
   } = options
 
-  return defineFilter(({ registerProgram }) => {
-    registerProgram({
+  return defineFilter(texture => {
+    texture.registerProgram({
       fragmentShader,
       uniforms: {
         uColor: [color[0], color[1], color[2]],

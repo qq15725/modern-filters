@@ -117,8 +117,8 @@ export function createColorMatrixFilter(options: ColorMatrixFilterOptions = {}) 
     matrix = newMatrix
   }
 
-  return defineFilter(({ registerProgram }) => {
-    registerProgram({
+  return defineFilter(texture => {
+    texture.registerProgram({
       fragmentShader,
       uniforms: {
         uAlpha: alpha,

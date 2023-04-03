@@ -1,5 +1,4 @@
 import { defineFilter } from './define-filter'
-import type { RGB, RGBA } from './types'
 
 const fragmentShader = `
 varying vec2 vTextureCoord;
@@ -35,7 +34,7 @@ void main(void) {
 `
 
 export interface MultiColorReplaceFilterOptions {
-  replacements?: [RGB, RGB | RGBA][]
+  replacements?: [number[], number[]][]
   epsilon?: number
 }
 
@@ -58,8 +57,8 @@ export function createMultiColorReplaceFilter(options: MultiColorReplaceFilterOp
     uTargetColors[i * 3 + 2] = targetColor[2]
   })
 
-  return defineFilter(({ registerProgram }) => {
-    registerProgram({
+  return defineFilter(texture => {
+    texture.registerProgram({
       fragmentShader: fragmentShader.replace('%maxColors%', String(maxColors)),
       uniforms: {
         uEpsilon: epsilon,

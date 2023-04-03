@@ -56,7 +56,7 @@ export function createAdjustmentFilter(options: AdjustmentFilterOptions = {}) {
 
   gamma = Math.max(gamma, 0.0001)
 
-  return defineFilter((texture) => {
+  return defineFilter(texture => {
     texture.registerProgram({
       fragmentShader,
       uniforms: {

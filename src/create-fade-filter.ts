@@ -35,8 +35,8 @@ export function createFadeFilter(options: FadeFilterOptions = {}) {
     loop = false,
   } = options
 
-  return defineFilter(({ registerProgram }) => {
-    registerProgram({
+  return defineFilter(texture => {
+    texture.registerProgram({
       fragmentShader,
       uniforms: {
         uIsOut: mode !== 'in',

@@ -1,5 +1,31 @@
-export type RGBA = [number, number, number, number]
-export type RGB = [number, number, number]
+export type UniformType = 'float'
+| 'vec2'
+| 'vec3'
+| 'vec4'
+| 'int'
+| 'ivec2'
+| 'ivec3'
+| 'ivec4'
+| 'uint'
+| 'uvec2'
+| 'uvec3'
+| 'uvec4'
+| 'bool'
+| 'bvec2'
+| 'bvec3'
+| 'bvec4'
+| 'mat2'
+| 'mat3'
+| 'mat4'
+| 'sampler2D'
+| 'samplerCube'
+| 'sampler2DArray'
+
+export interface Uniform {
+  type: UniformType
+  location: WebGLUniformLocation | null
+  isArray: boolean
+}
 
 export type Filter = (texture: Texture) => void
 
@@ -55,7 +81,7 @@ export interface Texture {
    */
   programs: Set<{
     program: WebGLProgram
-    locations: Record<string, WebGLUniformLocation | null>
+    uniforms: Record<string, Uniform>
   }>
 
   /**

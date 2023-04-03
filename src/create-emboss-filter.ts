@@ -28,8 +28,8 @@ export function createEmbossFilter(options: EmbossFilterOptions = {}) {
     strength = 5,
   } = options
 
-  return defineFilter(({ registerProgram }) => {
-    registerProgram({
+  return defineFilter(texture => {
+    texture.registerProgram({
       fragmentShader,
       uniforms: {
         uStrength: strength,
