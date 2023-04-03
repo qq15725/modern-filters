@@ -64,6 +64,11 @@ image.onload = () => {
 - [createTwistFilter](src/create-twist-filter.ts)
 - [createZoomBlurFilter](src/create-zoom-blur-filter.ts)
 
+## Types
+
+See the [types.ts](src/types.ts)
+
 ## Reference
 
+- [pixijs/pixijs](https://github.com/pixijs/pixijs)
 - [pixijs/filters](https://github.com/pixijs/filters)
