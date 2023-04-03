@@ -20,7 +20,7 @@ uniform bool uLoop;
 ${ animation }
 
 float random(vec3 scale, float seed) {
-    return fract(sin(dot(gl_FragCoord.xyz + seed, scale)) * 43758.5453 + seed);
+  return fract(sin(dot(gl_FragCoord.xyz + seed, scale)) * 43758.5453 + seed);
 }
 
 void main(void) {
@@ -35,12 +35,12 @@ void main(void) {
   float radius = smoothstep(0.0, 1.0, abs(dot(vTextureCoord * uTexSize - uStart, normal)) / gradientBlur) * blur;
 
   for (float t = -30.0; t <= 30.0; t++) {
-      float percent = (t + offset - 0.5) / 30.0;
-      float weight = 1.0 - abs(percent);
-      vec4 sample = texture2D(uSampler, vTextureCoord + uDelta / uTexSize * percent * radius);
-      sample.rgb *= sample.a;
-      color += sample * weight;
-      total += weight;
+    float percent = (t + offset - 0.5) / 30.0;
+    float weight = 1.0 - abs(percent);
+    vec4 sample = texture2D(uSampler, vTextureCoord + uDelta / uTexSize * percent * radius);
+    sample.rgb *= sample.a;
+    color += sample * weight;
+    total += weight;
   }
 
   color /= total;

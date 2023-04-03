@@ -6,8 +6,7 @@ varying vec2 vTextureCoord;
 uniform float uStrength;
 varying vec2 vBlurTextureCoords[5];
 
-void main(void)
-{
+void main(void) {
     gl_Position = vec4(aPosition, 0, 1);
     vTextureCoord = step(0.0, aPosition);
     vBlurTextureCoords[0] =  vTextureCoord + vec2(-2.0 * uStrength, 0.0);
@@ -24,8 +23,7 @@ varying vec2 vTextureCoord;
 uniform float uStrength;
 varying vec2 vBlurTextureCoords[5];
 
-void main(void)
-{
+void main(void) {
     gl_Position = vec4(aPosition, 0, 1);
     vTextureCoord = step(0.0, aPosition);
     vBlurTextureCoords[0] =  vTextureCoord + vec2(0.0, -2.0 * uStrength);
@@ -40,8 +38,7 @@ const fragmentShader = `
 varying vec2 vBlurTextureCoords[5];
 uniform sampler2D uSampler;
 
-void main(void)
-{
+void main(void) {
   gl_FragColor = vec4(0.0);
   gl_FragColor += texture2D(uSampler, vBlurTextureCoords[0]) * 0.153388;
   gl_FragColor += texture2D(uSampler, vBlurTextureCoords[1]) * 0.221461;

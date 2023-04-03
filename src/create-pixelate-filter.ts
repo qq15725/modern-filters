@@ -7,15 +7,15 @@ uniform sampler2D uSampler;
 uniform vec4 uFilterArea;
 
 vec2 mapCoord(vec2 coord) {
-    coord *= uFilterArea.xy;
-    coord += uFilterArea.zw;
-    return coord;
+  coord *= uFilterArea.xy;
+  coord += uFilterArea.zw;
+  return coord;
 }
 
 vec2 unmapCoord(vec2 coord) {
-    coord -= uFilterArea.zw;
-    coord /= uFilterArea.xy;
-    return coord;
+  coord -= uFilterArea.zw;
+  coord /= uFilterArea.xy;
+  return coord;
 }
 
 vec2 pixelate(vec2 coord, vec2 size) {
@@ -23,10 +23,10 @@ vec2 pixelate(vec2 coord, vec2 size) {
 }
 
 void main(void) {
-    vec2 coord = mapCoord(vTextureCoord);
-    coord = pixelate(coord, uSize);
-    coord = unmapCoord(coord);
-    gl_FragColor = texture2D(uSampler, coord);
+  vec2 coord = mapCoord(vTextureCoord);
+  coord = pixelate(coord, uSize);
+  coord = unmapCoord(coord);
+  gl_FragColor = texture2D(uSampler, coord);
 }
 `
 
