@@ -42,10 +42,9 @@ image.onload = () => {
     createFadeFilter({ duration: 1.2 }),
   ])
 
-  // This zero is time of timeline
+  // This zero is filter current time of timeline
   texture.draw(0)
-  texture.draw(0.1)
-  texture.draw(0.2)
+  // texture.draw(1)
 
   // Read image data for current frame
   // texture.readImageData()
