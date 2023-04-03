@@ -27,7 +27,7 @@ npm i modern-filters
 ## 🦄 Usage
 
 ```ts
-import { createTexture, createEmbossFilter } from 'modern-filters'
+import { createTexture, createEmbossFilter, createFadeFilter } from 'modern-filters'
 
 const image = new Image()
 image.src = 'example.jpg'
@@ -37,12 +37,18 @@ image.onload = () => {
     view: document.querySelector('canvas'),
   })
 
-  texture.use(
+  texture.useFilter([
     createEmbossFilter({ strength: 5 }),
-  )
+    createFadeFilter({ duration: 1.2 }),
+  ])
 
-  // this zero is time of timeline
+  // This zero is time of timeline
   texture.draw(0)
+  texture.draw(0.1)
+  texture.draw(0.2)
+
+  // Read image data for current frame
+  // texture.readImageData()
 }
 ```
 

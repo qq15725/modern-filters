@@ -80,9 +80,7 @@
       enabledFilterCreaters,
       (creaters) => {
         texture.resetPrograms()
-        creaters.forEach(createFilter => {
-          texture.use(createFilter())
-        })
+        texture.useFilter(creaters.map(creater => creater()))
         time = 0
       },
       { deep: true, immediate: true },

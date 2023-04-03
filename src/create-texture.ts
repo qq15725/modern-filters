@@ -223,8 +223,9 @@ void main() {
     },
   } as Texture
 
-  texture.use = (filter) => {
-    filter(texture)
+  texture.useFilter = (filter) => {
+    const filters = Array.isArray(filter) ? filter : [filter]
+    filters.forEach(useFilter => useFilter(texture))
     return texture
   }
 

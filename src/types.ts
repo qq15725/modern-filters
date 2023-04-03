@@ -62,7 +62,7 @@ export interface Texture {
    * Use a filter
    * @param filter
    */
-  use: (filter: Filter) => Texture
+  useFilter: (filter: Filter | Filter[]) => Texture
 
   /**
    * Reset all shader programs
