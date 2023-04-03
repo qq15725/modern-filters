@@ -56,19 +56,19 @@ void main(void)
 `
 
 type ColorMatrix = { type: 'hue'; rotation?: number }
-  | { type: 'blackAndWhite' }
-  | { type: 'browni' }
-  | { type: 'lsd' }
-  | { type: 'sepia' }
-  | { type: 'negative' }
-  | { type: 'kodachrome' }
-  | { type: 'polaroid' }
-  | { type: 'desaturate' }
-  | { type: 'predator'; amount?: number }
-  | { type: 'night'; intensity?: number }
-  | { type: 'technicolor' }
-  | { type: 'toBGR' }
-  | { type: 'vintage' }
+| { type: 'blackAndWhite' }
+| { type: 'browni' }
+| { type: 'lsd' }
+| { type: 'sepia' }
+| { type: 'negative' }
+| { type: 'kodachrome' }
+| { type: 'polaroid' }
+| { type: 'desaturate' }
+| { type: 'predator'; amount?: number }
+| { type: 'night'; intensity?: number }
+| { type: 'technicolor' }
+| { type: 'toBGR' }
+| { type: 'vintage' }
 
 export interface ColorMatrixFilterOptions {
   matrices?: (ColorMatrix & { multiply?: boolean })[]
