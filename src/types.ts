@@ -4,22 +4,24 @@ export type RGB = [number, number, number]
 export type Filter = (texture: Texture) => void
 
 export interface TextureOptions {
-  image: TexImageSource
-  canvas?: HTMLCanvasElement
+  source: TexImageSource
+  view?: HTMLCanvasElement
   vertices?: number[]
   defaultVertexShader?: string
   defaultFragmentShader?: string
 }
 
 export interface Texture {
-  canvas: HTMLCanvasElement
-  gl: WebGLRenderingContext
+  width: number
+  height: number
+  view: HTMLCanvasElement
+  context: WebGLRenderingContext
   programs: Set<{
     program: WebGLProgram
     locations: Record<string, WebGLUniformLocation | null>
   }>
   use: (filter: Filter) => Texture
-  clearPrograms: () => void
+  resetPrograms: () => void
   registerProgram: (
     options?: {
       vertexShader?: string
@@ -27,5 +29,5 @@ export interface Texture {
       uniforms?: Record<string, any>
     },
   ) => WebGLProgram
-  draw: (deltaTime?: number) => void
+  draw: (time?: number) => void
 }

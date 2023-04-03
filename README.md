@@ -27,30 +27,37 @@ npm i modern-filters
 ## 🦄 Usage
 
 ```ts
-import { embossFilter } from 'modern-filters'
+import { createTexture, createEmbossFilter } from 'modern-filters'
 
-const canvas = document.querySelector('.you-canvas')
-const canvasContext2d = canvas.getContext('2d')
-const imageData = canvasContext2d.getImageData(0, 0, canvas.width, canvas.height)
+const image = new Image()
+image.src = 'example.jpg'
+image.onload = () => {
+  const texture = createTexture({
+    source: image,
+    view: document.querySelector('canvas'),
+  })
 
-// 👇
-embossFilter(imageData, { strength: 5 })
+  texture.use(
+    createEmbossFilter({ strength: 5 }),
+  )
 
-context.putImageData(imageData, 0, 0)
+  texture.draw()
+}
 ```
 
-## 🚀 Filters
+## 🚀 Filter creaters
 
-> filter(imageData: ImageData, options?: FilterOptions)
+> createFilter(options?: Options)
 
-- [adjustmentFilter](src/adjustment-filter.ts)
-- [blurFilter](src/blur-filter.ts)
-- [ColorMatrixFilter](src/color-matrix-filter.ts)
-- [colorOverlayFilter](src/color-overlay-filter.ts)
-- [embossFilter](src/emboss-filter.ts)
-- [godrayFilter](src/godray-filter.ts)
-- [multiColorReplaceFilter](src/multi-color-replace-filter.ts)
-- [zoomBlurFilter](src/zoom-blur-filter.ts)
+- [createAdjustmentFilter](src/create-adjustment-filter.ts)
+- [createBlurFilter](src/create-blur-filter.ts)
+- [createColorMatrixFilter](src/create-color-matrix-filter.ts)
+- [createColorOverlayFilter](src/create-color-overlay-filter.ts)
+- [createEmbossFilter](src/create-emboss-filter.ts)
+- [createFadeFilter](src/create-fade-filter.ts)
+- [createGodrayFilter](src/create-godray-filter.ts)
+- [createMultiColorReplaceFilter](src/create-multi-color-replace-filter.ts)
+- [createZoomBlurFilter](src/create-zoom-blur-filter.ts)
 
 ## Reference
 

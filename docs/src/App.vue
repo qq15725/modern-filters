@@ -1,29 +1,34 @@
 <script setup lang="ts">
   import { computed, onMounted, ref, watch } from 'vue'
   import {
-    adjustmentFilter,
-    blurFilter,
+    createBlurFilter,
+    createAdjustmentFilter,
     createColorMatrixFilter,
     createColorOverlayFilter,
     createEmbossFilter,
     createFadeFilter,
+    createGodrayFilter,
     createMultiColorReplaceFilter,
     createTexture,
-    godrayFilter,
-    zoomBlurFilter,
+    createZoomBlurFilter,
   } from '../../src'
 
   const canvas = ref<HTMLCanvasElement>()
   const filterCreaters = {
-    // adjustmentFilter,
-    // blurFilter,
+    createAdjustmentFilter: () => createAdjustmentFilter({ gamma: 0.1 }),
+    createBlurFilter,
     createColorMatrixFilter,
     createColorOverlayFilter,
     createEmbossFilter,
     createFadeFilter,
-    // godrayFilter,
-    createMultiColorReplaceFilter,
-    // zoomBlurFilter,
+    createGodrayFilter,
+    createMultiColorReplaceFilter: () => createMultiColorReplaceFilter({
+      replacements: [
+        [[0, 0, 1], [1, 0, 0]],
+      ],
+      epsilon: 1,
+    }),
+    createZoomBlurFilter,
   }
   const enabledNames = ref<Record<string, boolean>>({})
   const enabledFilterCreaters = computed(() => {
@@ -48,20 +53,18 @@
     }
 
     const texture = createTexture({
-      image,
-      canvas: canvas.value,
+      source: image,
+      view: canvas.value,
     })
 
     watch(
       enabledFilterCreaters,
       (creaters) => {
-        texture.clearPrograms()
+        texture.resetPrograms()
         if (creaters.length) {
           creaters.forEach(createFilter => {
             texture.use(createFilter())
           })
-        } else {
-          texture.use(() => texture.registerProgram())
         }
       },
       { deep: true, immediate: true },

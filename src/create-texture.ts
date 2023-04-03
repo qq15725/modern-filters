@@ -28,8 +28,8 @@ interface UniformInfo {
 
 export function createTexture(options: TextureOptions): Texture {
   const {
-    image,
-    canvas: userCanvas,
+    source,
+    view: userCanvas,
     vertices = [-1, 1, -1, -1, 1, -1, 1, -1, 1, 1, -1, 1],
     defaultVertexShader = `
 attribute vec2 aPosition;
@@ -49,13 +49,13 @@ void main() {
 `,
   } = options
 
-  const { width, height } = image
-  const canvas = userCanvas ?? document.createElement('canvas')
+  const { width, height } = source
+  const view = userCanvas ?? document.createElement('canvas')
   if (!userCanvas) {
-    canvas.width = width
-    canvas.height = height
+    view.width = width
+    view.height = height
   }
-  const gl = canvas.getContext('webgl')
+  const gl = view.getContext('webgl')
   if (!gl) throw new Error('failed to get webgl context')
   const programs: Texture['programs'] = new Set()
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
@@ -66,7 +66,7 @@ void main() {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source)
   // framebuffers
   const textureBuffers = Array.from({ length: 2 }, () => {
     const texture = gl.createTexture()
@@ -90,75 +90,86 @@ void main() {
   gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0)
   gl.enableVertexAttribArray(0)
 
-  const texture = {
-    gl,
-    canvas,
-    programs,
-    clearPrograms: () => {
-      programs.forEach(({ program }) => {
-        gl.deleteProgram(program)
-      })
-      programs.clear()
-    },
-    registerProgram: (options = {}) => {
-      const {
-        vertexShader = defaultVertexShader,
-        fragmentShader = defaultFragmentShader,
-        uniforms = {},
-      } = options
-      const program = createProgram(gl, vertexShader, fragmentShader)
+  const registerProgram: Texture['registerProgram'] = (options = {}) => {
+    const {
+      vertexShader = defaultVertexShader,
+      fragmentShader = defaultFragmentShader,
+      uniforms = {},
+    } = options
+    const program = createProgram(gl, vertexShader, fragmentShader)
 
-      const uniformInfos: Record<string, UniformInfo> = {}
-      const totalUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS)
-      for (let i = 0; i < totalUniforms; i++) {
-        const uniformData = gl.getActiveUniform(program, i)
-        if (!uniformData) continue
-        uniformInfos[uniformData.name.replace(/\[.*?\]$/, '')] = {
-          type: getUniofrmType(gl, uniformData.type),
-          isArray: !!(uniformData.name.match(/\[.*?\]$/)),
-        }
+    const uniformInfos: Record<string, UniformInfo> = {}
+    const totalUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS)
+    for (let i = 0; i < totalUniforms; i++) {
+      const uniformData = gl.getActiveUniform(program, i)
+      if (!uniformData) continue
+      uniformInfos[uniformData.name.replace(/\[.*?\]$/, '')] = {
+        type: getUniofrmType(gl, uniformData.type),
+        isArray: !!(uniformData.name.match(/\[.*?\]$/)),
       }
-      gl.bindAttribLocation(program, 0, 'aPosition')
-      const locations = {
-        uSampler: gl.getUniformLocation(program, 'uSampler'),
-        uDimension: gl.getUniformLocation(program, 'uDimension'),
-        uTime: gl.getUniformLocation(program, 'uTime'),
+    }
+    gl.bindAttribLocation(program, 0, 'aPosition')
+    const locations = {
+      uTime: gl.getUniformLocation(program, 'uTime'),
+    }
+    gl.useProgram(program)
+    const allUniforms: Record<string, any> = {
+      ...uniforms,
+      uSampler: 0,
+      uDimension: [width, height],
+    }
+    for (const [name, value] of Object.entries(allUniforms)) {
+      const info = uniformInfos[name]
+      if (!info) continue
+      const location = gl.getUniformLocation(program, name)
+      switch (info.type) {
+        case 'float':
+          if (info.isArray) {
+            gl.uniform1fv(location, value)
+          } else {
+            gl.uniform1f(location, value)
+          }
+          break
+        case 'int':
+          if (info.isArray) {
+            gl.uniform1iv(location, value)
+          } else {
+            gl.uniform1i(location, value)
+          }
+          break
+        case 'vec2':
+          gl.uniform2fv(location, value)
+          break
+        case 'vec3':
+          gl.uniform3fv(location, value)
+          break
+        case 'vec4':
+          gl.uniform4fv(location, value)
+          break
       }
-      gl.useProgram(program)
-      locations.uSampler && gl.uniform1i(locations.uSampler, 0)
-      locations.uDimension && gl.uniform2fv(locations.uDimension, [width, height])
-      for (const [name, value] of Object.entries(uniforms)) {
-        const info = uniformInfos[name]
-        const location = gl.getUniformLocation(program, name)
-        switch (info.type) {
-          case 'float':
-            if (info.isArray) {
-              gl.uniform1fv(location, value)
-            } else {
-              gl.uniform1f(location, value)
-            }
-            break
-          case 'int':
-            if (info.isArray) {
-              gl.uniform1iv(location, value)
-            } else {
-              gl.uniform1i(location, value)
-            }
-            break
-          case 'vec2':
-            gl.uniform2fv(location, value)
-            break
-          case 'vec3':
-            gl.uniform3fv(location, value)
-            break
-          case 'vec4':
-            gl.uniform4fv(location, value)
-            break
-        }
-      }
-      programs.add({ program, locations })
-      return program
-    },
+    }
+    programs.add({ program, locations })
+    return program
+  }
+
+  const resetPrograms: Texture['resetPrograms'] = () => {
+    programs.forEach(({ program }) => {
+      gl.deleteProgram(program)
+    })
+    programs.clear()
+    registerProgram()
+  }
+
+  resetPrograms()
+
+  const texture = {
+    width,
+    height,
+    context: gl,
+    view,
+    programs,
+    resetPrograms,
+    registerProgram,
     draw: (time = 0) => {
       gl.bindTexture(gl.TEXTURE_2D, rawTexture)
       let index = 0

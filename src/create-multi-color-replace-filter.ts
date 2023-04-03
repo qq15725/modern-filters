@@ -46,9 +46,7 @@ void main(void)
 
 export function createMultiColorReplaceFilter(options: MultiColorReplaceFilterOptions = {}) {
   const {
-    replacements = [
-      [[1, 0, 0], [0, 0, 1]],
-    ],
+    replacements = [],
     epsilon = 0.05,
   } = options
 
