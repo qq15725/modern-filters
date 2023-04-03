@@ -41,19 +41,13 @@ export function createTexture(options: TextureOptions): Texture {
   // bind to texture 0
   const rawTexture = gl.createTexture()
   gl.bindTexture(gl.TEXTURE_2D, rawTexture)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+  setupTexture2d(gl)
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source)
   // framebuffers
   const textureBuffers = Array.from({ length: 2 }, () => {
     const texture = gl.createTexture()
     gl.bindTexture(gl.TEXTURE_2D, texture)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+    setupTexture2d(gl)
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
     const buffer = gl.createFramebuffer()
     gl.bindFramebuffer(gl.FRAMEBUFFER, buffer)
@@ -93,10 +87,10 @@ export function createTexture(options: TextureOptions): Texture {
     for (let i = 0; i < totalUniforms; i++) {
       const uniformData = gl.getActiveUniform(program, i)
       if (!uniformData) continue
-      const name = uniformData.name.replace(/\[.*?\]$/, '')
+      const name = uniformData.name.replace(/\[.*?]$/, '')
       uniforms[name] = {
         type: getUniofrmType(gl, uniformData.type),
-        isArray: !!(uniformData.name.match(/\[.*?\]$/)),
+        isArray: !!(uniformData.name.match(/\[.*?]$/)),
         location: gl.getUniformLocation(program, name),
       }
     }
@@ -207,6 +201,13 @@ export function createTexture(options: TextureOptions): Texture {
   }
 
   return texture
+}
+
+function setupTexture2d(gl: WebGLRenderingContext) {
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
 }
 
 function createShader(
