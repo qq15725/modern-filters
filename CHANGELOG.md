@@ -1,3 +1,12 @@
+## [0.2.3](https://github.com/qq15725/modern-filters/compare/v0.2.2...v0.2.3) (2023-04-03)
+
+
+### Features
+
+* kawaseBlurFilter support animation ([9697397](https://github.com/qq15725/modern-filters/commit/96973971ccbf075ab798096f600ba8da425746c8))
+
+
+
 ## [0.2.2](https://github.com/qq15725/modern-filters/compare/v0.2.1...v0.2.2) (2023-04-03)
 
 
