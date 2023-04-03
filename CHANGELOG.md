@@ -1,3 +1,12 @@
+## [0.2.2](https://github.com/qq15725/modern-filters/compare/v0.2.1...v0.2.2) (2023-04-03)
+
+
+### Features
+
+* rename use to useFilter ([c5e885c](https://github.com/qq15725/modern-filters/commit/c5e885c6eb9230960030d9bfb4f9623708f5e44c))
+
+
+
 ## [0.2.1](https://github.com/qq15725/modern-filters/compare/v0.2.0...v0.2.1) (2023-04-03)
 
 
