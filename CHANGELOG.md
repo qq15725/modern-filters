@@ -1,3 +1,17 @@
+## [0.2.1](https://github.com/qq15725/modern-filters/compare/v0.2.0...v0.2.1) (2023-04-03)
+
+
+### Bug Fixes
+
+* eslint ([9e999f4](https://github.com/qq15725/modern-filters/commit/9e999f4de88c684c64cfa4c3a7b723c7f1803a68))
+
+
+### Features
+
+* support new filters ([5477537](https://github.com/qq15725/modern-filters/commit/54775377bde7cfc00cd2248a1ee5e89af4503d1a))
+
+
+
 # [0.2.0](https://github.com/qq15725/modern-filters/compare/v0.1.2...v0.2.0) (2023-04-03)
 
 
