@@ -1,3 +1,13 @@
+# [0.2.0](https://github.com/qq15725/modern-filters/compare/v0.1.2...v0.2.0) (2023-04-03)
+
+
+### Features
+
+* toggle to webgl ([bc5a5e1](https://github.com/qq15725/modern-filters/commit/bc5a5e1d343b9a581cad6c44e9a77569070afa4b))
+* toggle to webgl ([29f61d2](https://github.com/qq15725/modern-filters/commit/29f61d2d63f73f2fcc0cfaa008627022ab3744dd))
+
+
+
 ## [0.1.2](https://github.com/qq15725/modern-filters/compare/v0.1.1...v0.1.2) (2023-04-01)
 
 
