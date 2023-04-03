@@ -41,7 +41,8 @@ image.onload = () => {
     createEmbossFilter({ strength: 5 }),
   )
 
-  texture.draw()
+  // this zero is time of timeline
+  texture.draw(0)
 }
 ```
 
@@ -56,7 +57,11 @@ image.onload = () => {
 - [createEmbossFilter](src/create-emboss-filter.ts)
 - [createFadeFilter](src/create-fade-filter.ts)
 - [createGodrayFilter](src/create-godray-filter.ts)
+- [createKawaseBlurFilter](src/create-kawase-blur-filter.ts)
 - [createMultiColorReplaceFilter](src/create-multi-color-replace-filter.ts)
+- [createPixelateFilter](src/create-pixelate-filter.ts)
+- [createTiltShiftFilter](src/create-tilt-shift-filter.ts)
+- [createTwistFilter](src/create-twist-filter.ts)
 - [createZoomBlurFilter](src/create-zoom-blur-filter.ts)
 
 ## Reference

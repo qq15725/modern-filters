@@ -1,10 +1,6 @@
 import { defineFilter } from './define-filter'
 import type { RGBA } from './types'
 
-export interface ColorOverlayFilterOptions {
-  color?: RGBA
-}
-
 const fragmentShader = `
 precision mediump float;
 uniform sampler2D uSampler;
@@ -17,6 +13,10 @@ void main(void) {
   gl_FragColor = vec4(mix(color.rgb, uColor, color.a * uAlpha), color.a);
 }
 `
+
+export interface ColorOverlayFilterOptions {
+  color?: RGBA
+}
 
 export function createColorOverlayFilter(options: ColorOverlayFilterOptions = {}) {
   const {

@@ -1,16 +1,5 @@
 import { defineFilter } from './define-filter'
 
-export interface AdjustmentFilterOptions {
-  gamma?: number
-  saturation?: number
-  contrast?: number
-  brightness?: number
-  red?: number
-  green?: number
-  blue?: number
-  alpha?: number
-}
-
 const fragmentShader = `
 varying vec2 vTextureCoord;
 uniform sampler2D uSampler;
@@ -43,6 +32,17 @@ void main(void)
     gl_FragColor = c * alpha;
 }
 `
+
+export interface AdjustmentFilterOptions {
+  gamma?: number
+  saturation?: number
+  contrast?: number
+  brightness?: number
+  red?: number
+  green?: number
+  blue?: number
+  alpha?: number
+}
 
 export function createAdjustmentFilter(options: AdjustmentFilterOptions = {}) {
   const {

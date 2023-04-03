@@ -1,17 +1,9 @@
 import { defineFilter } from './define-filter'
 
-export interface ZoomBlurFilterOptions {
-  strength?: number
-  center?: [number, number]
-  innerRadius?: number
-  radius?: number
-  maxKernelSize?: number
-}
-
 const fragmentShader = `
 varying vec2 vTextureCoord;
 uniform sampler2D uSampler;
-uniform vec2 uDimension;
+uniform vec4 uInputSize;
 
 uniform vec2 uCenter;
 uniform float uStrength;
@@ -28,15 +20,15 @@ highp float rand(vec2 co, float seed) {
 
 void main() {
     float minGradient = uInnerRadius * 0.3;
-    float innerRadius = (uInnerRadius + minGradient * 0.5) / uDimension.x;
+    float innerRadius = (uInnerRadius + minGradient * 0.5) / uInputSize.x;
 
     float gradient = uRadius * 0.3;
-    float radius = (uRadius - gradient * 0.5) / uDimension.x;
+    float radius = (uRadius - gradient * 0.5) / uInputSize.x;
 
     float countLimit = MAX_KERNEL_SIZE;
 
-    vec2 dir = vec2(uCenter.xy / uDimension.xy - vTextureCoord);
-    float dist = length(vec2(dir.x, dir.y * uDimension.y / uDimension.x));
+    vec2 dir = vec2(uCenter.xy / uInputSize.xy - vTextureCoord);
+    float dist = length(vec2(dir.x, dir.y * uInputSize.y / uInputSize.x));
 
     float strength = uStrength;
 
@@ -51,7 +43,7 @@ void main() {
     }
 
     if (delta > 0.0) {
-        float normalCount = gap / uDimension.x;
+        float normalCount = gap / uInputSize.x;
         delta = (normalCount - delta) / normalCount;
         countLimit *= delta;
         strength *= delta;
@@ -87,6 +79,14 @@ void main() {
     gl_FragColor = color;
 }
 `
+
+export interface ZoomBlurFilterOptions {
+  strength?: number
+  center?: [number, number]
+  innerRadius?: number
+  radius?: number
+  maxKernelSize?: number
+}
 
 export function createZoomBlurFilter(options: ZoomBlurFilterOptions = {}) {
   const {

@@ -1,25 +1,5 @@
 import { defineFilter } from './define-filter'
 
-type ColorMatrix = { type: 'hue'; rotation?: number }
-| { type: 'blackAndWhite' }
-| { type: 'browni' }
-| { type: 'lsd' }
-| { type: 'sepia' }
-| { type: 'negative' }
-| { type: 'kodachrome' }
-| { type: 'polaroid' }
-| { type: 'desaturate' }
-| { type: 'predator'; amount?: number }
-| { type: 'night'; intensity?: number }
-| { type: 'technicolor' }
-| { type: 'toBGR' }
-| { type: 'vintage' }
-
-export interface ColorMatrixFilterOptions {
-  matrices?: (ColorMatrix & { multiply?: boolean })[]
-  alpha?: number
-}
-
 const fragmentShader = `
 varying vec2 vTextureCoord;
 uniform sampler2D uSampler;
@@ -74,6 +54,26 @@ void main(void)
     gl_FragColor = vec4(rgb, result.a);
 }
 `
+
+type ColorMatrix = { type: 'hue'; rotation?: number }
+  | { type: 'blackAndWhite' }
+  | { type: 'browni' }
+  | { type: 'lsd' }
+  | { type: 'sepia' }
+  | { type: 'negative' }
+  | { type: 'kodachrome' }
+  | { type: 'polaroid' }
+  | { type: 'desaturate' }
+  | { type: 'predator'; amount?: number }
+  | { type: 'night'; intensity?: number }
+  | { type: 'technicolor' }
+  | { type: 'toBGR' }
+  | { type: 'vintage' }
+
+export interface ColorMatrixFilterOptions {
+  matrices?: (ColorMatrix & { multiply?: boolean })[]
+  alpha?: number
+}
 
 export function createColorMatrixFilter(options: ColorMatrixFilterOptions = {}) {
   const {

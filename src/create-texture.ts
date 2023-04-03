@@ -30,6 +30,7 @@ export function createTexture(options: TextureOptions): Texture {
   const {
     source,
     view: userCanvas,
+    filterArea,
     vertices = [-1, 1, -1, -1, 1, -1, 1, -1, 1, 1, -1, 1],
     defaultVertexShader = `
 attribute vec2 aPosition;
@@ -90,6 +91,13 @@ void main() {
   gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0)
   gl.enableVertexAttribArray(0)
 
+  const globalUniforms = {
+    uSampler: 0,
+    uInputSize: [width, height, 1 / width, 1 / height],
+    uFilterArea: filterArea ?? [width, height, 0, 0],
+    uTime: 0,
+  }
+
   const registerProgram: Texture['registerProgram'] = (options = {}) => {
     const {
       vertexShader = defaultVertexShader,
@@ -98,6 +106,10 @@ void main() {
     } = options
     const program = createProgram(gl, vertexShader, fragmentShader)
 
+    // Attrib
+    gl.bindAttribLocation(program, 0, 'aPosition')
+
+    // Init uniform infos
     const uniformInfos: Record<string, UniformInfo> = {}
     const totalUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS)
     for (let i = 0; i < totalUniforms; i++) {
@@ -108,16 +120,15 @@ void main() {
         isArray: !!(uniformData.name.match(/\[.*?\]$/)),
       }
     }
-    gl.bindAttribLocation(program, 0, 'aPosition')
-    const locations = {
-      uTime: gl.getUniformLocation(program, 'uTime'),
-    }
+
+    // Init uniforms
     gl.useProgram(program)
+
     const allUniforms: Record<string, any> = {
       ...uniforms,
-      uSampler: 0,
-      uDimension: [width, height],
+      ...globalUniforms,
     }
+
     for (const [name, value] of Object.entries(allUniforms)) {
       const info = uniformInfos[name]
       if (!info) continue
@@ -130,6 +141,7 @@ void main() {
             gl.uniform1f(location, value)
           }
           break
+        case 'bool':
         case 'int':
           if (info.isArray) {
             gl.uniform1iv(location, value)
@@ -148,7 +160,14 @@ void main() {
           break
       }
     }
-    programs.add({ program, locations })
+
+    programs.add({
+      program,
+      locations: {
+        uTime: gl.getUniformLocation(program, 'uTime'),
+      },
+    })
+
     return program
   }
 
@@ -191,6 +210,16 @@ void main() {
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertices.length / 2)
         !isLast && gl.bindTexture(gl.TEXTURE_2D, textureBuffer.texture)
       })
+    },
+    readImageData: (
+      x = 0,
+      y = 0,
+      userWidth = width,
+      userHeight = height,
+    ) => {
+      const image = new ImageData(userWidth, userHeight)
+      gl.readPixels(x, y, userWidth, userHeight, gl.RGBA, gl.UNSIGNED_BYTE, image.data)
+      return image
     },
   } as Texture
 

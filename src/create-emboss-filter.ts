@@ -1,19 +1,14 @@
 import { defineFilter } from './define-filter'
 
-export interface EmbossFilterOptions {
-  strength?: number
-}
-
 const fragmentShader = `
 precision mediump float;
 uniform sampler2D uSampler;
-uniform vec2 uDimension;
+uniform vec4 uInputSize;
 uniform float uStrength;
 varying vec2 vTextureCoord;
 
-void main(void)
-{
-  vec2 onePixel = vec2(1.0 / uDimension);
+void main(void) {
+  vec2 onePixel = uInputSize.zw;
   vec4 color;
   color.rgb = vec3(0.5);
   color -= texture2D(uSampler, vTextureCoord - onePixel) * uStrength;
@@ -23,6 +18,10 @@ void main(void)
   gl_FragColor = vec4(color.rgb * alpha, alpha);
 }
 `
+
+export interface EmbossFilterOptions {
+  strength?: number
+}
 
 export function createEmbossFilter(options: EmbossFilterOptions = {}) {
   const {

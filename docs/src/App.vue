@@ -1,15 +1,19 @@
 <script setup lang="ts">
   import { computed, onMounted, ref, watch } from 'vue'
   import {
-    createBlurFilter,
     createAdjustmentFilter,
+    createBlurFilter,
     createColorMatrixFilter,
     createColorOverlayFilter,
     createEmbossFilter,
     createFadeFilter,
     createGodrayFilter,
+    createKawaseBlurFilter,
     createMultiColorReplaceFilter,
+    createPixelateFilter,
     createTexture,
+    createTiltShiftFilter,
+    createTwistFilter,
     createZoomBlurFilter,
   } from '../../src'
 
@@ -22,12 +26,16 @@
     createEmbossFilter,
     createFadeFilter,
     createGodrayFilter,
+    createKawaseBlurFilter,
     createMultiColorReplaceFilter: () => createMultiColorReplaceFilter({
       replacements: [
         [[0, 0, 1], [1, 0, 0]],
       ],
       epsilon: 1,
     }),
+    createPixelateFilter,
+    createTiltShiftFilter,
+    createTwistFilter,
     createZoomBlurFilter,
   }
   const enabledNames = ref<Record<string, boolean>>({})
@@ -57,19 +65,6 @@
       view: canvas.value,
     })
 
-    watch(
-      enabledFilterCreaters,
-      (creaters) => {
-        texture.resetPrograms()
-        if (creaters.length) {
-          creaters.forEach(createFilter => {
-            texture.use(createFilter())
-          })
-        }
-      },
-      { deep: true, immediate: true },
-    )
-
     let then = 0
     let time = 0
     function mainLoop(now: number) {
@@ -80,6 +75,18 @@
       requestAnimationFrame(mainLoop)
     }
     requestAnimationFrame(mainLoop)
+
+    watch(
+      enabledFilterCreaters,
+      (creaters) => {
+        texture.resetPrograms()
+        creaters.forEach(createFilter => {
+          texture.use(createFilter())
+        })
+        time = 0
+      },
+      { deep: true, immediate: true },
+    )
   })
 </script>
 

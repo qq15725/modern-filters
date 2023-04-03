@@ -1,10 +1,5 @@
 import { defineFilter } from './define-filter'
 
-export interface BlurFilterOptions {
-  strength?: number
-  quality?: number
-}
-
 const vertexXShader = `
 attribute vec2 aPosition;
 varying vec2 vTextureCoord;
@@ -55,6 +50,11 @@ void main(void)
   gl_FragColor += texture2D(uSampler, vBlurTextureCoords[4]) * 0.153388;
 }
 `
+
+export interface BlurFilterOptions {
+  strength?: number
+  quality?: number
+}
 
 export function createBlurFilter(options: BlurFilterOptions = {}) {
   const {

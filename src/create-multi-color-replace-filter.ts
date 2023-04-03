@@ -1,11 +1,6 @@
 import { defineFilter } from './define-filter'
 import type { RGB, RGBA } from './types'
 
-export interface MultiColorReplaceFilterOptions {
-  replacements?: [RGB, RGB | RGBA][]
-  epsilon?: number
-}
-
 const fragmentShader = `
 varying vec2 vTextureCoord;
 uniform sampler2D uSampler;
@@ -14,35 +9,35 @@ const int MAX_COLORS = %maxColors%;
 uniform vec3 uOriginalColors[MAX_COLORS];
 uniform vec3 uTargetColors[MAX_COLORS];
 
-void main(void)
-{
-    gl_FragColor = texture2D(uSampler, vTextureCoord);
+void main(void) {
+  gl_FragColor = texture2D(uSampler, vTextureCoord);
 
-    float alpha = gl_FragColor.a;
-    if (alpha < 0.0001)
-    {
+  float alpha = gl_FragColor.a;
+  if (alpha < 0.0001) {
+    return;
+  }
+
+  vec3 color = gl_FragColor.rgb / alpha;
+
+  for(int i = 0; i < MAX_COLORS; i++) {
+    vec3 origColor = uOriginalColors[i];
+    if (origColor.r < 0.0) {
+      break;
+    }
+    vec3 colorDiff = origColor - color;
+    if (length(colorDiff) < uEpsilon) {
+      vec3 targetColor = uTargetColors[i];
+      gl_FragColor = vec4((targetColor + colorDiff) * alpha, alpha);
       return;
     }
-
-    vec3 color = gl_FragColor.rgb / alpha;
-
-    for(int i = 0; i < MAX_COLORS; i++)
-    {
-      vec3 origColor = uOriginalColors[i];
-      if (origColor.r < 0.0)
-      {
-        break;
-      }
-      vec3 colorDiff = origColor - color;
-      if (length(colorDiff) < uEpsilon)
-      {
-        vec3 targetColor = uTargetColors[i];
-        gl_FragColor = vec4((targetColor + colorDiff) * alpha, alpha);
-        return;
-      }
-    }
+  }
 }
 `
+
+export interface MultiColorReplaceFilterOptions {
+  replacements?: [RGB, RGB | RGBA][]
+  epsilon?: number
+}
 
 export function createMultiColorReplaceFilter(options: MultiColorReplaceFilterOptions = {}) {
   const {
