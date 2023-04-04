@@ -1,3 +1,12 @@
+## [0.2.4](https://github.com/qq15725/modern-filters/compare/v0.2.3...v0.2.4) (2023-04-04)
+
+
+### Features
+
+* support `update`、`destroy` texture object, rename method `resetPrograms` to `reset` ([54e3654](https://github.com/qq15725/modern-filters/commit/54e365410fd3c8f78796efc663dd951e699be343))
+
+
+
 ## [0.2.3](https://github.com/qq15725/modern-filters/compare/v0.2.2...v0.2.3) (2023-04-03)
 
 
