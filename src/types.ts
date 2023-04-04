@@ -27,9 +27,15 @@ export interface Uniform {
   isArray: boolean
 }
 
+export interface AnimationFilterOptions {
+  mode?: 'in' | 'out'
+  duration?: number
+  loop?: boolean
+}
+
 export type Filter = (texture: Texture) => void
 
-export interface TextureOptions {
+export interface TextureInternalOptions {
   /**
    * Texture source
    */
@@ -49,11 +55,28 @@ export interface TextureOptions {
    */
   filterArea?: number[]
 
-  // Shader part
+  /**
+   * Shader vertices
+   */
   vertices?: number[]
+
+  /**
+   * Default vertex shader
+   */
   defaultVertexShader?: string
+
+  /**
+   * Default fragment shader
+   */
   defaultFragmentShader?: string
+
+  /**
+   * Global uniforms
+   */
+  globalUniforms?: Record<string, any>
 }
+
+export type TextureOptions = TextureInternalOptions & WebGLContextAttributes
 
 export interface Texture {
   /**
@@ -85,15 +108,9 @@ export interface Texture {
   }>
 
   /**
-   * Use a filter
-   * @param filter
+   * Use filter
    */
   useFilter: (filter: Filter | Filter[]) => Texture
-
-  /**
-   * Reset all shader programs
-   */
-  resetPrograms: () => void
 
   /**
    * Register a shader program
@@ -107,18 +124,27 @@ export interface Texture {
   ) => WebGLProgram
 
   /**
+   * Update texture current source
+   */
+  update: (source: TexImageSource) => void
+
+  /**
+   * Reset all shader programs
+   */
+  reset: () => void
+
+  /**
    * Draw a frame based on the timeline
    */
   draw: (time?: number) => void
 
   /**
-   * Read image data
+   * Read current frame image data
    */
   readImageData: (x?: number, y?: number, width?: number, height?: number) => ImageData
-}
 
-export interface AnimationFilterOptions {
-  mode?: 'in' | 'out'
-  duration?: number
-  loop?: boolean
+  /**
+   * Destroy context
+   */
+  destroy: () => void
 }

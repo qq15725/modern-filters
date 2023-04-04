@@ -26,23 +26,68 @@ export function createTexture(options: TextureOptions): Texture {
     vertices = [-1, 1, -1, -1, 1, -1, 1, -1, 1, 1, -1, 1],
     defaultVertexShader = vert,
     defaultFragmentShader = frag,
+    globalUniforms: userGlobalUniforms,
+    ...contextOptions
   } = options
 
+  // init canvas
   const { width, height } = source
   const view = userCanvas ?? document.createElement('canvas')
   if (!userCanvas) {
     view.width = width
     view.height = height
   }
-  const gl = view.getContext('webgl')
-  if (!gl) throw new Error('failed to get webgl context')
+
+  // global uniforms
+  const globalUniforms = {
+    uSampler: 0,
+    uInputSize: [width, height, 1 / width, 1 / height],
+    uFilterArea: filterArea ?? [width, height, 0, 0],
+    uTime: 0,
+    ...userGlobalUniforms,
+  }
+
   const programs: Texture['programs'] = new Set()
+
+  // init webgl context TODO support webgl2
+  const gl = (
+    view.getContext('webgl', contextOptions)
+    || view.getContext('experimental-webgl', contextOptions)
+  ) as WebGLRenderingContext
+  if (!gl) throw new Error('failed to getContext for webgl')
+  const glExtensions = {
+    loseContext: gl.getExtension('WEBGL_lose_context'),
+  }
+
+  function handleContextLost(event: WebGLContextEvent) {
+    event.preventDefault()
+    setTimeout(() => {
+      gl.isContextLost() && glExtensions.loseContext?.restoreContext()
+    }, 0)
+  }
+
+  function handleContextRestored() {
+    // TODO
+  }
+
+  view.addEventListener?.('webglcontextlost', handleContextLost as any, false)
+  view.addEventListener?.('webglcontextrestored', handleContextRestored, false)
+
+  function destroy() {
+    view.removeEventListener?.('webglcontextlost', handleContextLost as any)
+    view.removeEventListener?.('webglcontextrestored', handleContextRestored)
+    gl.useProgram(null)
+    glExtensions.loseContext?.loseContext()
+  }
+
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
+
   // bind to texture 0
   const rawTexture = gl.createTexture()
   gl.bindTexture(gl.TEXTURE_2D, rawTexture)
   setupTexture2d(gl)
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source)
+
   // framebuffers
   const textureBuffers = Array.from({ length: 2 }, () => {
     const texture = gl.createTexture()
@@ -57,18 +102,12 @@ export function createTexture(options: TextureOptions): Texture {
       texture,
     }
   })
+
   // bind to attr 0
   gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer())
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW)
   gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0)
   gl.enableVertexAttribArray(0)
-
-  const globalUniforms = {
-    uSampler: 0,
-    uInputSize: [width, height, 1 / width, 1 / height],
-    uFilterArea: filterArea ?? [width, height, 0, 0],
-    uTime: 0,
-  }
 
   const registerProgram: Texture['registerProgram'] = (options = {}) => {
     const {
@@ -76,12 +115,14 @@ export function createTexture(options: TextureOptions): Texture {
       fragmentShader = defaultFragmentShader,
       uniforms: userUniforms,
     } = options
+
+    // create program
     const program = createProgram(gl, vertexShader, fragmentShader)
 
-    // Attrib
+    // attrib
     gl.bindAttribLocation(program, 0, 'aPosition')
 
-    // Init uniform infos
+    // init uniform infos
     const uniforms: Record<string, Uniform> = {}
     const totalUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS)
     for (let i = 0; i < totalUniforms; i++) {
@@ -95,14 +136,13 @@ export function createTexture(options: TextureOptions): Texture {
       }
     }
 
-    // Init uniforms
     gl.useProgram(program)
 
+    // init uniforms
     const allUniforms: Record<string, any> = {
       ...userUniforms,
       ...globalUniforms,
     }
-
     for (const [name, value] of Object.entries(allUniforms)) {
       if (!(name in uniforms)) continue
       const { type, isArray, location } = uniforms[name]
@@ -142,15 +182,13 @@ export function createTexture(options: TextureOptions): Texture {
     return program
   }
 
-  const resetPrograms: Texture['resetPrograms'] = () => {
-    programs.forEach(({ program }) => {
-      gl.deleteProgram(program)
-    })
+  const reset: Texture['reset'] = () => {
+    programs.forEach(({ program }) => gl.deleteProgram(program))
     programs.clear()
     registerProgram()
   }
 
-  resetPrograms()
+  reset()
 
   const texture = {
     width,
@@ -158,8 +196,12 @@ export function createTexture(options: TextureOptions): Texture {
     context: gl,
     view,
     programs,
-    resetPrograms,
     registerProgram,
+    update: (source) => {
+      gl.bindTexture(gl.TEXTURE_2D, rawTexture)
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source)
+    },
+    reset,
     draw: (time = 0) => {
       gl.bindTexture(gl.TEXTURE_2D, rawTexture)
       let index = 0
@@ -181,6 +223,7 @@ export function createTexture(options: TextureOptions): Texture {
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertices.length / 2)
         !isLast && gl.bindTexture(gl.TEXTURE_2D, textureBuffer.texture)
       })
+      gl.flush()
     },
     readImageData: (
       x = 0,
@@ -192,6 +235,7 @@ export function createTexture(options: TextureOptions): Texture {
       gl.readPixels(x, y, userWidth, userHeight, gl.RGBA, gl.UNSIGNED_BYTE, image.data)
       return image
     },
+    destroy,
   } as Texture
 
   texture.useFilter = (filter) => {
